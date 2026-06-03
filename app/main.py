@@ -14,6 +14,7 @@ from app.auth.routes import router as auth_router
 from app.config import get_settings
 from app.logging_config import configure_logging
 from app.routes.checkin import router as checkin_router
+from app.routes.feedback import router as feedback_router
 from app.routes.health import router as health_router
 from app.routes.mini_tests import router as mini_tests_router
 from app.routes.niggles import router as niggles_router
@@ -26,6 +27,7 @@ OPENAPI_TAGS = [
     {"name": "checkin", "description": "Daily readiness checkins (form, motivation, fatigue)."},
     {"name": "niggles", "description": "Nagging body complaints and their trajectory reports."},
     {"name": "mini-tests", "description": "Neuromuscular micro-tests (jump / reaction)."},
+    {"name": "feedback", "description": "Post-session feedback (RPE and affect)."},
 ]
 
 
@@ -66,6 +68,7 @@ def create_app() -> FastAPI:
     app.include_router(checkin_router)
     app.include_router(niggles_router)
     app.include_router(mini_tests_router)
+    app.include_router(feedback_router)
     return app
 
 
