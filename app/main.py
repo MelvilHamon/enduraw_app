@@ -13,6 +13,7 @@ from app import __version__
 from app.auth.routes import router as auth_router
 from app.config import get_settings
 from app.logging_config import configure_logging
+from app.routes.checkin import router as checkin_router
 from app.routes.health import router as health_router
 
 logger = logging.getLogger(__name__)
@@ -20,6 +21,7 @@ logger = logging.getLogger(__name__)
 OPENAPI_TAGS = [
     {"name": "health", "description": "Service liveness."},
     {"name": "auth", "description": "Registration, login and current user."},
+    {"name": "checkin", "description": "Daily readiness checkins (form, motivation, fatigue)."},
 ]
 
 
@@ -57,6 +59,7 @@ def create_app() -> FastAPI:
 
     app.include_router(health_router)
     app.include_router(auth_router)
+    app.include_router(checkin_router)
     return app
 
 
