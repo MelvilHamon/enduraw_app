@@ -13,6 +13,8 @@ from sqlalchemy.pool import StaticPool
 
 from app.db import Base, get_db
 from app.main import app
+from app.models.user import User
+from app.security import create_access_token, hash_password
 
 
 @event.listens_for(Engine, "connect")
@@ -52,27 +54,34 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
     app.dependency_overrides.clear()
 
 
-def make_auth_headers(
-    client: TestClient, email: str, password: str = "supersecret123"
-) -> dict[str, str]:
-    """Register (idempotently) and log a user in, returning a Bearer header dict."""
+# Hash the test password exactly once for the whole suite: bcrypt is by far the
+# slowest thing the integration tests would otherwise do (once per request).
+_TEST_PASSWORD_HASH = hash_password("supersecret123")
 
-    client.post("/api/auth/register", json={"email": email, "password": password})
-    token = client.post("/api/auth/login", json={"email": email, "password": password}).json()[
-        "access_token"
-    ]
+
+def make_auth_headers(db: Session, email: str) -> dict[str, str]:
+    """Insert a user directly and mint a Bearer header for it.
+
+    The full register/login HTTP flow is covered by ``test_auth.py``; resource
+    tests only need an authenticated identity, so we skip the bcrypt round-trip.
+    """
+
+    user = User(email=email, hashed_password=_TEST_PASSWORD_HASH)
+    db.add(user)
+    db.commit()
+    token, _ = create_access_token(subject=user.id)
     return {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture
-def auth_headers(client: TestClient) -> dict[str, str]:
+def auth_headers(client: TestClient, db_session: Session) -> dict[str, str]:
     """Bearer header for the primary test athlete."""
 
-    return make_auth_headers(client, "athlete@example.com")
+    return make_auth_headers(db_session, "athlete@example.com")
 
 
 @pytest.fixture
-def other_auth_headers(client: TestClient) -> dict[str, str]:
+def other_auth_headers(client: TestClient, db_session: Session) -> dict[str, str]:
     """Bearer header for a second, distinct athlete (for isolation tests)."""
 
-    return make_auth_headers(client, "intruder@example.com")
+    return make_auth_headers(db_session, "intruder@example.com")
