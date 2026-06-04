@@ -109,8 +109,8 @@ mypy app/
 - [x] **Step 1** — Backend skeleton: Docker, health, JWT auth, `User` model, tooling & CI
 - [x] **Step 2** — Domain models (checkin, niggle, mini_test, daily_metric…)
 - [x] **Step 3** — Business routes (checkin, niggles, mini-tests, feedback, illness)
-- [ ] Step 4 — Personas & demo seeding
-- [ ] Step 5 — Synthetic data generator
+- [x] **Step 4** — Synthetic data generator (`app/synth/`): deterministic per-seed athlete histories
+- [ ] Step 5 — Personas & demo seeding
 - [ ] Step 6 — EnginePort + MockEngine
 - [ ] Step 7 — CoachAgentEngine (live REST integration)
 - [ ] Step 8 — Signal fusion
