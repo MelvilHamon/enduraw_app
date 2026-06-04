@@ -15,6 +15,7 @@ from app.config import get_settings
 from app.logging_config import configure_logging
 from app.routes.checkin import router as checkin_router
 from app.routes.feedback import router as feedback_router
+from app.routes.garmin import router as garmin_router
 from app.routes.health import router as health_router
 from app.routes.illness import router as illness_router
 from app.routes.mini_tests import router as mini_tests_router
@@ -30,6 +31,7 @@ OPENAPI_TAGS = [
     {"name": "mini-tests", "description": "Neuromuscular micro-tests (jump / reaction)."},
     {"name": "feedback", "description": "Post-session feedback (RPE and affect)."},
     {"name": "illness", "description": "Athlete-confirmed illness flags and symptoms."},
+    {"name": "garmin", "description": "Faked Garmin ingestion (daily metrics + on-watch RPE)."},
 ]
 
 
@@ -72,6 +74,7 @@ def create_app() -> FastAPI:
     app.include_router(mini_tests_router)
     app.include_router(feedback_router)
     app.include_router(illness_router)
+    app.include_router(garmin_router)
     return app
 
 

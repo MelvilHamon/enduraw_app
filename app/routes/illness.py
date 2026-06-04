@@ -13,6 +13,7 @@ from app.db import get_db
 from app.models.illness_flag import IllnessFlag
 from app.models.user import User
 from app.routes._pagination import PaginationDep
+from app.schemas.garmin import IllnessHintOut
 from app.schemas.illness import IllnessCreate, IllnessOut
 from app.services import illness_service
 
@@ -37,6 +38,18 @@ def upsert_illness(
     flag, created = illness_service.upsert_illness(db, current_user.id, payload)
     response.status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
     return flag
+
+
+@router.get("/hint", response_model=IllnessHintOut)
+def get_hint(
+    current_user: CurrentUser,
+    db: DbSession,
+    date: Annotated[date_, Query(description="Day to evaluate (YYYY-MM-DD).")],
+) -> IllnessHintOut:
+    """Compute the watch-hint for a day against the athlete's rolling baseline."""
+
+    hint = illness_service.compute_hint(db, current_user.id, date)
+    return IllnessHintOut.model_validate(hint, from_attributes=True)
 
 
 @router.get("", response_model=list[IllnessOut])
