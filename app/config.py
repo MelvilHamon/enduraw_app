@@ -34,6 +34,10 @@ class Settings(BaseSettings):
     ENGINE_MODE: Literal["mock", "live"] = "mock"
     COACHAGENT_BASE_URL: str | None = None
     COACHAGENT_API_KEY: str | None = None
+    COACHAGENT_TIMEOUT_S: float = 10.0
+    COACHAGENT_MAX_RETRIES: int = 3
+    # Where the standalone (mock) engine reads per-user snapshots from.
+    MOCK_ENGINE_DIR: str = "./data/mock_engine"
 
     SEED_ON_START: bool = False
 

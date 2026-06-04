@@ -15,6 +15,7 @@ import argparse
 from sqlalchemy import func, select
 
 import app.models  # noqa: F401 — register every model on Base.metadata
+from app.config import get_settings
 from app.db import Base, SessionLocal, engine
 from app.models.daily_checkin import DailyCheckin
 from app.models.daily_metric import DailyMetric
@@ -49,6 +50,7 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
+    settings = get_settings()
 
     if args.reset:
         Base.metadata.drop_all(bind=engine)
@@ -59,11 +61,12 @@ def main() -> None:
     datasets = generate_cohort(specs, days=args.days)
 
     with SessionLocal() as db:
-        users = seed_cohort(db, datasets)
+        users = seed_cohort(db, datasets, engine_dir=settings.MOCK_ENGINE_DIR)
         print(f"Seeded {len(users)} athlete(s) ({args.days} days each):")
         for name, model in _COUNTED:
             total = db.scalar(select(func.count()).select_from(model)) or 0
             print(f"  {name:<18} {total}")
+        print(f"  engine snapshots → {settings.MOCK_ENGINE_DIR}")
 
 
 if __name__ == "__main__":

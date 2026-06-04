@@ -110,12 +110,11 @@ mypy app/
 - [x] **Step 2** — Domain models (checkin, niggle, mini_test, daily_metric…)
 - [x] **Step 3** — Business routes (checkin, niggles, mini-tests, feedback, illness)
 - [x] **Step 4** — Synthetic data generator (`app/synth/`): deterministic per-seed athlete histories
-- [ ] Step 5 — Personas & demo seeding
-- [ ] Step 6 — EnginePort + MockEngine
-- [ ] Step 7 — CoachAgentEngine (live REST integration)
-- [ ] Step 8 — Signal fusion
-- [ ] Step 9 — Insights
-- [ ] Step 10 — Hardening & release
+- [x] **Step 5** — Personas & demo seeding (`app/synth/seeder.py`, `scripts/seed.py`)
+- [x] **Step 6** — Engine layer (`app/engines/`): `EnginePort`, `MockEngine`, `CoachAgentEngine` + factory
+- [ ] Step 7 — Signal fusion (app + Garmin + engine)
+- [ ] Step 8 — Insights
+- [ ] Step 9 — Hardening & release
 
 ## License
 

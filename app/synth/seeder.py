@@ -11,10 +11,12 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, time, timedelta
 from datetime import date as date_
+from pathlib import Path
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from app.engines.snapshot import write_snapshot
 from app.models.daily_checkin import DailyCheckin
 from app.models.daily_metric import DailyMetric
 from app.models.illness_flag import IllnessFlag
@@ -200,8 +202,15 @@ def _seed_illness(db: Session, user: User, dataset: SyntheticDataset) -> None:
             day += timedelta(days=1)
 
 
-def seed_user(db: Session, dataset: SyntheticDataset) -> User:
-    """Idempotently persist one synthetic athlete and all their data."""
+def seed_user(
+    db: Session, dataset: SyntheticDataset, *, engine_dir: str | Path | None = None
+) -> User:
+    """Idempotently persist one synthetic athlete and all their data.
+
+    When ``engine_dir`` is given, also dump the generator's latent truth (and the
+    session log) to ``{engine_dir}/{user_id}.json`` so the standalone
+    :class:`~app.engines.mock.MockEngine` can serve this athlete.
+    """
 
     user = _upsert_user(db, dataset)
     _wipe_user_data(db, user.id)
@@ -210,10 +219,14 @@ def seed_user(db: Session, dataset: SyntheticDataset) -> User:
     _seed_mini_tests(db, user, dataset)
     _seed_niggles(db, user, dataset)
     _seed_illness(db, user, dataset)
+    if engine_dir is not None:
+        write_snapshot(engine_dir, user.id, latent=dataset.latent, sessions=dataset.sessions)
     return user
 
 
-def seed_cohort(db: Session, datasets: list[SyntheticDataset]) -> list[User]:
+def seed_cohort(
+    db: Session, datasets: list[SyntheticDataset], *, engine_dir: str | Path | None = None
+) -> list[User]:
     """Seed a whole cohort, returning the created/updated users."""
 
-    return [seed_user(db, dataset) for dataset in datasets]
+    return [seed_user(db, dataset, engine_dir=engine_dir) for dataset in datasets]
