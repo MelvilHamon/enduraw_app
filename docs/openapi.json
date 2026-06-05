@@ -1,0 +1,3847 @@
+{
+  "components": {
+    "schemas": {
+      "Affect": {
+        "enum": [
+          "weak",
+          "neutral",
+          "strong"
+        ],
+        "title": "Affect",
+        "type": "string"
+      },
+      "BodyRegion": {
+        "enum": [
+          "foot_fore",
+          "foot_mid",
+          "foot_heel",
+          "ankle",
+          "achilles",
+          "calf",
+          "shin",
+          "knee_anterior",
+          "knee_medial",
+          "knee_lateral",
+          "knee_posterior",
+          "quad",
+          "hamstring",
+          "adductor",
+          "it_band",
+          "hip_flexor",
+          "glute",
+          "groin",
+          "lower_back",
+          "upper_back",
+          "neck",
+          "shoulder",
+          "other"
+        ],
+        "title": "BodyRegion",
+        "type": "string"
+      },
+      "CheckinCreate": {
+        "description": "Request body to record (and upsert) a daily readiness checkin.",
+        "example": {
+          "date": "2026-06-04",
+          "fatigue": 2,
+          "form_vs_normal": 1,
+          "motivation": 4
+        },
+        "properties": {
+          "date": {
+            "description": "Calendar day the checkin refers to (ISO YYYY-MM-DD).",
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "fatigue": {
+            "description": "Perceived fatigue, 1 (fresh) to 5 (exhausted).",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Fatigue",
+            "type": "integer"
+          },
+          "form_vs_normal": {
+            "description": "Subjective form vs a normal day, -2 (much worse) to +2 (much better).",
+            "maximum": 2.0,
+            "minimum": -2.0,
+            "title": "Form Vs Normal",
+            "type": "integer"
+          },
+          "motivation": {
+            "description": "Motivation to train today, 1 to 5.",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Motivation",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "date",
+          "form_vs_normal",
+          "motivation",
+          "fatigue"
+        ],
+        "title": "CheckinCreate",
+        "type": "object"
+      },
+      "CheckinOut": {
+        "description": "A persisted daily checkin.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "fatigue": {
+            "title": "Fatigue",
+            "type": "integer"
+          },
+          "form_vs_normal": {
+            "title": "Form Vs Normal",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "motivation": {
+            "title": "Motivation",
+            "type": "integer"
+          },
+          "reported_at": {
+            "format": "date-time",
+            "title": "Reported At",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "form_vs_normal",
+          "motivation",
+          "fatigue",
+          "reported_at",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "CheckinOut",
+        "type": "object"
+      },
+      "CorrelationsOut": {
+        "description": "Niggle×load summary over a window.",
+        "properties": {
+          "date_from": {
+            "format": "date",
+            "title": "Date From",
+            "type": "string"
+          },
+          "date_to": {
+            "format": "date",
+            "title": "Date To",
+            "type": "string"
+          },
+          "load_linked_count": {
+            "title": "Load Linked Count",
+            "type": "integer"
+          },
+          "niggles": {
+            "items": {
+              "$ref": "#/components/schemas/NiggleCorrelationOut"
+            },
+            "title": "Niggles",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "date_from",
+          "date_to",
+          "total",
+          "load_linked_count",
+          "niggles"
+        ],
+        "title": "CorrelationsOut",
+        "type": "object"
+      },
+      "DailyMetricOut": {
+        "description": "A persisted daily wellness snapshot.",
+        "properties": {
+          "body_battery": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body Battery"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "hrv_rmssd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hrv Rmssd"
+          },
+          "hrv_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HrvStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "resp_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resp Rate"
+          },
+          "rhr": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rhr"
+          },
+          "sleep_duration_min": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sleep Duration Min"
+          },
+          "sleep_onset": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sleep Onset"
+          },
+          "sleep_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sleep Score"
+          },
+          "sleep_wake": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sleep Wake"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "stress": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stress"
+          },
+          "training_readiness": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Training Readiness"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "vo2max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vo2Max"
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "sleep_score",
+          "sleep_duration_min",
+          "sleep_onset",
+          "sleep_wake",
+          "hrv_rmssd",
+          "hrv_status",
+          "rhr",
+          "stress",
+          "body_battery",
+          "resp_rate",
+          "training_readiness",
+          "vo2max",
+          "source",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "DailyMetricOut",
+        "type": "object"
+      },
+      "DailyReadOut": {
+        "description": "The full daily readiness read returned by ``GET /api/insights/today``.",
+        "properties": {
+          "composite_score": {
+            "title": "Composite Score",
+            "type": "number"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "engine_state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EngineState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "readiness": {
+            "$ref": "#/components/schemas/ReadinessOut"
+          },
+          "signals": {
+            "items": {
+              "$ref": "#/components/schemas/SignalOut"
+            },
+            "title": "Signals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "date",
+          "engine_state",
+          "composite_score",
+          "readiness",
+          "signals"
+        ],
+        "title": "DailyReadOut",
+        "type": "object"
+      },
+      "EnginePoint": {
+        "description": "One ``(date, value)`` sample of a timeseries metric.",
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "date",
+          "value"
+        ],
+        "title": "EnginePoint",
+        "type": "object"
+      },
+      "EngineState": {
+        "description": "The engine's readiness snapshot for a single day.",
+        "example": {
+          "acwr": 1.05,
+          "date": "2026-06-04",
+          "fatigue": 9.1,
+          "fitness": 64.2,
+          "form": 14.1,
+          "load_28d": 1583.0,
+          "load_7d": 412.0,
+          "readiness_hint": "neutral",
+          "trend_form_7d": 3.2
+        },
+        "properties": {
+          "acwr": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acwr"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "fatigue": {
+            "title": "Fatigue",
+            "type": "number"
+          },
+          "fitness": {
+            "title": "Fitness",
+            "type": "number"
+          },
+          "form": {
+            "title": "Form",
+            "type": "number"
+          },
+          "load_28d": {
+            "title": "Load 28D",
+            "type": "number"
+          },
+          "load_7d": {
+            "title": "Load 7D",
+            "type": "number"
+          },
+          "readiness_hint": {
+            "enum": [
+              "low",
+              "neutral",
+              "high"
+            ],
+            "title": "Readiness Hint",
+            "type": "string"
+          },
+          "trend_form_7d": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trend Form 7D"
+          }
+        },
+        "required": [
+          "date",
+          "fitness",
+          "fatigue",
+          "form",
+          "acwr",
+          "load_7d",
+          "load_28d",
+          "trend_form_7d",
+          "readiness_hint"
+        ],
+        "title": "EngineState",
+        "type": "object"
+      },
+      "FeedbackSource": {
+        "enum": [
+          "garmin_watch",
+          "app_manual"
+        ],
+        "title": "FeedbackSource",
+        "type": "string"
+      },
+      "GarminDaily": {
+        "description": "One day of faked Garmin wellness metrics (mirrors ``DailyMetric``).",
+        "example": {
+          "body_battery": 74,
+          "date": "2026-06-04",
+          "hrv_rmssd": 62.4,
+          "hrv_status": "normal",
+          "resp_rate": 14.2,
+          "rhr": 48,
+          "sleep_duration_min": 432,
+          "sleep_score": 78,
+          "stress": 31,
+          "training_readiness": 69,
+          "vo2max": 58.1
+        },
+        "properties": {
+          "body_battery": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body Battery"
+          },
+          "date": {
+            "description": "The day these metrics describe.",
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "hrv_rmssd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hrv Rmssd"
+          },
+          "hrv_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HrvStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resp_rate": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resp Rate"
+          },
+          "rhr": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rhr"
+          },
+          "sleep_duration_min": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sleep Duration Min"
+          },
+          "sleep_onset": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sleep Onset"
+          },
+          "sleep_score": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sleep Score"
+          },
+          "sleep_wake": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sleep Wake"
+          },
+          "source": {
+            "default": "garmin_faked",
+            "maxLength": 32,
+            "title": "Source",
+            "type": "string"
+          },
+          "stress": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stress"
+          },
+          "training_readiness": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Training Readiness"
+          },
+          "vo2max": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vo2Max"
+          }
+        },
+        "required": [
+          "date"
+        ],
+        "title": "GarminDaily",
+        "type": "object"
+      },
+      "GarminIngestRequest": {
+        "description": "A batch of faked Garmin data to ingest for the authenticated athlete.",
+        "properties": {
+          "daily": {
+            "items": {
+              "$ref": "#/components/schemas/GarminDaily"
+            },
+            "title": "Daily",
+            "type": "array"
+          },
+          "sessions": {
+            "items": {
+              "$ref": "#/components/schemas/GarminSessionFeedback"
+            },
+            "title": "Sessions",
+            "type": "array"
+          }
+        },
+        "title": "GarminIngestRequest",
+        "type": "object"
+      },
+      "GarminIngestResponse": {
+        "description": "Outcome of an ingestion call.",
+        "properties": {
+          "daily_upserted": {
+            "title": "Daily Upserted",
+            "type": "integer"
+          },
+          "illness_flags_set": {
+            "title": "Illness Flags Set",
+            "type": "integer"
+          },
+          "sessions_upserted": {
+            "title": "Sessions Upserted",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "daily_upserted",
+          "sessions_upserted",
+          "illness_flags_set"
+        ],
+        "title": "GarminIngestResponse",
+        "type": "object"
+      },
+      "GarminSessionFeedback": {
+        "description": "On-watch RPE + affect for a CoachAgent activity (source garmin_watch).",
+        "example": {
+          "activity_id": "synth-7-2026-06-04",
+          "affect": "neutral",
+          "reported_at": "2026-06-04T17:30:00Z",
+          "rpe": 6
+        },
+        "properties": {
+          "activity_id": {
+            "description": "CoachAgent activity reference.",
+            "maxLength": 64,
+            "title": "Activity Id",
+            "type": "string"
+          },
+          "affect": {
+            "$ref": "#/components/schemas/Affect",
+            "description": "Post-session affect: weak, neutral or strong."
+          },
+          "reported_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "When the RPE was logged on the watch; defaults to now.",
+            "title": "Reported At"
+          },
+          "rpe": {
+            "description": "Rate of perceived exertion, 1 (easy) to 10 (max).",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Rpe",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "activity_id",
+          "rpe",
+          "affect"
+        ],
+        "title": "GarminSessionFeedback",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HrvStatus": {
+        "enum": [
+          "low",
+          "normal",
+          "high"
+        ],
+        "title": "HrvStatus",
+        "type": "string"
+      },
+      "IllnessCreate": {
+        "description": "Request body to record (and upsert) an illness flag for a day.",
+        "example": {
+          "date": "2026-06-04",
+          "notes": "Started last night.",
+          "symptoms": [
+            "sore_throat",
+            "unusual_fatigue"
+          ]
+        },
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Day of illness; defaults to today.",
+            "title": "Date"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "symptoms": {
+            "description": "At least one reported symptom.",
+            "items": {
+              "$ref": "#/components/schemas/IllnessSymptom"
+            },
+            "minItems": 1,
+            "title": "Symptoms",
+            "type": "array"
+          }
+        },
+        "required": [
+          "symptoms"
+        ],
+        "title": "IllnessCreate",
+        "type": "object"
+      },
+      "IllnessHintOut": {
+        "description": "The watch-hint computation for one day (vs the athlete's rolling baseline).",
+        "example": {
+          "baseline_window_days": 14,
+          "hrv_delta": -18.3,
+          "resp_delta": 3.4,
+          "rhr_delta": 9.1,
+          "triggered": true
+        },
+        "properties": {
+          "baseline_window_days": {
+            "title": "Baseline Window Days",
+            "type": "integer"
+          },
+          "hrv_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hrv Delta"
+          },
+          "resp_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resp Delta"
+          },
+          "rhr_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rhr Delta"
+          },
+          "triggered": {
+            "title": "Triggered",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "triggered",
+          "hrv_delta",
+          "rhr_delta",
+          "resp_delta",
+          "baseline_window_days"
+        ],
+        "title": "IllnessHintOut",
+        "type": "object"
+      },
+      "IllnessOut": {
+        "description": "A persisted illness flag.",
+        "properties": {
+          "confirmed_by_user": {
+            "title": "Confirmed By User",
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "symptoms": {
+            "items": {
+              "$ref": "#/components/schemas/IllnessSymptom"
+            },
+            "title": "Symptoms",
+            "type": "array"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "watch_hint_triggered": {
+            "title": "Watch Hint Triggered",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "symptoms",
+          "watch_hint_triggered",
+          "confirmed_by_user",
+          "notes",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "IllnessOut",
+        "type": "object"
+      },
+      "IllnessSymptom": {
+        "enum": [
+          "sore_throat",
+          "congestion",
+          "fever",
+          "unusual_fatigue",
+          "cough",
+          "body_aches"
+        ],
+        "title": "IllnessSymptom",
+        "type": "string"
+      },
+      "JumpData": {
+        "description": "Counter-movement jump result.",
+        "properties": {
+          "flight_time_ms": {
+            "description": "Flight time in milliseconds.",
+            "minimum": 0.0,
+            "title": "Flight Time Ms",
+            "type": "integer"
+          },
+          "height_cm": {
+            "description": "Estimated jump height in centimetres.",
+            "minimum": 0.0,
+            "title": "Height Cm",
+            "type": "number"
+          },
+          "type": {
+            "const": "jump",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "flight_time_ms",
+          "height_cm"
+        ],
+        "title": "JumpData",
+        "type": "object"
+      },
+      "LoginIn": {
+        "properties": {
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginIn",
+        "type": "object"
+      },
+      "MechanicalPattern": {
+        "enum": [
+          "uphill",
+          "downhill",
+          "push_off",
+          "impact",
+          "rest",
+          "constant"
+        ],
+        "title": "MechanicalPattern",
+        "type": "string"
+      },
+      "MiniTestBaselineOut": {
+        "description": "Rolling baseline for a mini-test type's headline metric.",
+        "properties": {
+          "latest": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest"
+          },
+          "latest_z": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Z"
+          },
+          "mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean"
+          },
+          "metric": {
+            "title": "Metric",
+            "type": "string"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          },
+          "std": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Std"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "metric",
+          "n",
+          "mean",
+          "std",
+          "latest",
+          "latest_z"
+        ],
+        "title": "MiniTestBaselineOut",
+        "type": "object"
+      },
+      "MiniTestCreate": {
+        "description": "Request body for a mini-test. ``data`` is discriminated by its ``type``.",
+        "example": {
+          "data": {
+            "flight_time_ms": 480,
+            "height_cm": 28.3,
+            "type": "jump"
+          },
+          "date": "2026-06-04",
+          "reported_at": "2026-06-04T07:30:00Z"
+        },
+        "properties": {
+          "data": {
+            "discriminator": {
+              "mapping": {
+                "jump": "#/components/schemas/JumpData",
+                "reaction": "#/components/schemas/ReactionData"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/JumpData"
+              },
+              {
+                "$ref": "#/components/schemas/ReactionData"
+              }
+            ],
+            "title": "Data"
+          },
+          "date": {
+            "description": "Calendar day of the test (ISO YYYY-MM-DD).",
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "reported_at": {
+            "description": "When the result was recorded.",
+            "format": "date-time",
+            "title": "Reported At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "reported_at",
+          "data"
+        ],
+        "title": "MiniTestCreate",
+        "type": "object"
+      },
+      "MiniTestOut": {
+        "description": "A persisted mini-test. ``data`` carries the type-specific payload.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "data": {
+            "additionalProperties": true,
+            "title": "Data",
+            "type": "object"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "reported_at": {
+            "format": "date-time",
+            "title": "Reported At",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/MiniTestType"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "reported_at",
+          "type",
+          "data",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "MiniTestOut",
+        "type": "object"
+      },
+      "MiniTestType": {
+        "enum": [
+          "jump",
+          "reaction"
+        ],
+        "title": "MiniTestType",
+        "type": "string"
+      },
+      "NiggleCorrelationOut": {
+        "description": "One niggle's link to the acute load around its onset.",
+        "properties": {
+          "load_linked": {
+            "title": "Load Linked",
+            "type": "boolean"
+          },
+          "niggle_id": {
+            "title": "Niggle Id",
+            "type": "string"
+          },
+          "opened_at": {
+            "format": "date",
+            "title": "Opened At",
+            "type": "string"
+          },
+          "peak_acwr_before_open": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peak Acwr Before Open"
+          },
+          "region": {
+            "title": "Region",
+            "type": "string"
+          }
+        },
+        "required": [
+          "niggle_id",
+          "region",
+          "opened_at",
+          "peak_acwr_before_open",
+          "load_linked"
+        ],
+        "title": "NiggleCorrelationOut",
+        "type": "object"
+      },
+      "NiggleCreate": {
+        "description": "Request body to open a niggle, optionally with a first report.",
+        "example": {
+          "initial_report": {
+            "intensity": 3,
+            "is_new_or_recurrent": "new",
+            "timing": "after"
+          },
+          "notes": "Felt it after the long run.",
+          "opened_at": "2026-06-04",
+          "region": "knee_anterior",
+          "side": "left",
+          "structure": "tendon rotulien"
+        },
+        "properties": {
+          "initial_report": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReportCreate"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional first report, created in the same transaction."
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "opened_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Open date; defaults to today.",
+            "title": "Opened At"
+          },
+          "region": {
+            "$ref": "#/components/schemas/BodyRegion",
+            "description": "Body region (immutable once created)."
+          },
+          "side": {
+            "$ref": "#/components/schemas/Side",
+            "description": "Body side (immutable once created)."
+          },
+          "structure": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Free-text anatomical detail.",
+            "title": "Structure"
+          }
+        },
+        "required": [
+          "region",
+          "side"
+        ],
+        "title": "NiggleCreate",
+        "type": "object"
+      },
+      "NiggleOut": {
+        "description": "A niggle summary without embedded reports (used in list views).",
+        "properties": {
+          "closed_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed At"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "opened_at": {
+            "format": "date",
+            "title": "Opened At",
+            "type": "string"
+          },
+          "region": {
+            "$ref": "#/components/schemas/BodyRegion"
+          },
+          "side": {
+            "$ref": "#/components/schemas/Side"
+          },
+          "structure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Structure"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "opened_at",
+          "closed_at",
+          "region",
+          "side",
+          "structure",
+          "notes",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "NiggleOut",
+        "type": "object"
+      },
+      "NigglePatch": {
+        "additionalProperties": false,
+        "description": "Partial update of a niggle. ``region`` / ``side`` are immutable.\n\nAny extra key (including ``region`` or ``side``) is rejected with ``422``.",
+        "example": {
+          "closed_at": "2026-06-20"
+        },
+        "properties": {
+          "closed_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Close date; ``null`` reopens.",
+            "title": "Closed At"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "structure": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Structure"
+          }
+        },
+        "title": "NigglePatch",
+        "type": "object"
+      },
+      "NiggleWithReportsOut": {
+        "description": "A niggle with its reports embedded (date ascending).",
+        "properties": {
+          "closed_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed At"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "opened_at": {
+            "format": "date",
+            "title": "Opened At",
+            "type": "string"
+          },
+          "region": {
+            "$ref": "#/components/schemas/BodyRegion"
+          },
+          "reports": {
+            "items": {
+              "$ref": "#/components/schemas/ReportOut"
+            },
+            "title": "Reports",
+            "type": "array"
+          },
+          "side": {
+            "$ref": "#/components/schemas/Side"
+          },
+          "structure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Structure"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "opened_at",
+          "closed_at",
+          "region",
+          "side",
+          "structure",
+          "notes",
+          "created_at",
+          "updated_at",
+          "reports"
+        ],
+        "title": "NiggleWithReportsOut",
+        "type": "object"
+      },
+      "PainType": {
+        "enum": [
+          "sharp",
+          "dull",
+          "tension",
+          "burning",
+          "stabbing"
+        ],
+        "title": "PainType",
+        "type": "string"
+      },
+      "ReactionData": {
+        "description": "Reaction-time (tap) test result.",
+        "properties": {
+          "mean_rt_ms": {
+            "description": "Mean reaction time in milliseconds.",
+            "minimum": 0.0,
+            "title": "Mean Rt Ms",
+            "type": "number"
+          },
+          "n_taps": {
+            "description": "Number of taps recorded.",
+            "minimum": 0.0,
+            "title": "N Taps",
+            "type": "integer"
+          },
+          "sd_rt_ms": {
+            "description": "Reaction-time standard deviation (ms).",
+            "minimum": 0.0,
+            "title": "Sd Rt Ms",
+            "type": "number"
+          },
+          "type": {
+            "const": "reaction",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "mean_rt_ms",
+          "sd_rt_ms",
+          "n_taps"
+        ],
+        "title": "ReactionData",
+        "type": "object"
+      },
+      "ReadinessOut": {
+        "description": "The headline recommendation and the two reasons for it.",
+        "properties": {
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "reco": {
+            "title": "Reco",
+            "type": "string"
+          },
+          "top_2": {
+            "items": {
+              "$ref": "#/components/schemas/SignalOut"
+            },
+            "title": "Top 2",
+            "type": "array"
+          }
+        },
+        "required": [
+          "reco",
+          "top_2",
+          "explanation"
+        ],
+        "title": "ReadinessOut",
+        "type": "object"
+      },
+      "RegisterIn": {
+        "properties": {
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "RegisterIn",
+        "type": "object"
+      },
+      "ReportCreate": {
+        "description": "Request body to record one trajectory update on a niggle.",
+        "example": {
+          "date": "2026-06-04",
+          "intensity": 4,
+          "is_new_or_recurrent": "recurrent",
+          "linked_activity_id": "act_12345",
+          "mechanical_pattern": "downhill",
+          "notes": "Tightens up on descents.",
+          "pain_type": "sharp",
+          "timing": "during"
+        },
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Report day; defaults to today.",
+            "title": "Date"
+          },
+          "intensity": {
+            "description": "Pain intensity, 0 (none) to 10 (worst).",
+            "maximum": 10.0,
+            "minimum": 0.0,
+            "title": "Intensity",
+            "type": "integer"
+          },
+          "is_new_or_recurrent": {
+            "description": "Whether the complaint is new, recurrent, or of unknown history.",
+            "enum": [
+              "new",
+              "recurrent",
+              "unknown"
+            ],
+            "title": "Is New Or Recurrent",
+            "type": "string"
+          },
+          "linked_activity_id": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional CoachAgent activity reference.",
+            "title": "Linked Activity Id"
+          },
+          "mechanical_pattern": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MechanicalPattern"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "pain_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PainType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timing": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Timing"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "intensity",
+          "is_new_or_recurrent"
+        ],
+        "title": "ReportCreate",
+        "type": "object"
+      },
+      "ReportOut": {
+        "description": "A persisted niggle report.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "intensity": {
+            "title": "Intensity",
+            "type": "integer"
+          },
+          "is_new_or_recurrent": {
+            "title": "Is New Or Recurrent",
+            "type": "string"
+          },
+          "linked_activity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Linked Activity Id"
+          },
+          "mechanical_pattern": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MechanicalPattern"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "niggle_id": {
+            "title": "Niggle Id",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "pain_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PainType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timing": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Timing"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "niggle_id",
+          "date",
+          "intensity",
+          "pain_type",
+          "mechanical_pattern",
+          "timing",
+          "is_new_or_recurrent",
+          "linked_activity_id",
+          "notes",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ReportOut",
+        "type": "object"
+      },
+      "SessionFeedbackCreate": {
+        "description": "Request body to record (and upsert) feedback for one activity.",
+        "example": {
+          "activity_id": "act_12345",
+          "affect": "neutral",
+          "reported_at": "2026-06-04T18:05:00Z",
+          "rpe": 7
+        },
+        "properties": {
+          "activity_id": {
+            "description": "CoachAgent activity reference this feedback is for.",
+            "maxLength": 64,
+            "title": "Activity Id",
+            "type": "string"
+          },
+          "affect": {
+            "$ref": "#/components/schemas/Affect",
+            "description": "Post-session affect: weak, neutral or strong."
+          },
+          "reported_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "When the feedback was given; defaults to now.",
+            "title": "Reported At"
+          },
+          "rpe": {
+            "description": "Rate of perceived exertion, 1 (easy) to 10 (max).",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Rpe",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "activity_id",
+          "rpe",
+          "affect"
+        ],
+        "title": "SessionFeedbackCreate",
+        "type": "object"
+      },
+      "SessionFeedbackOut": {
+        "description": "A persisted session feedback entry.",
+        "properties": {
+          "activity_id": {
+            "title": "Activity Id",
+            "type": "string"
+          },
+          "affect": {
+            "$ref": "#/components/schemas/Affect"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "reported_at": {
+            "format": "date-time",
+            "title": "Reported At",
+            "type": "string"
+          },
+          "rpe": {
+            "title": "Rpe",
+            "type": "integer"
+          },
+          "source": {
+            "$ref": "#/components/schemas/FeedbackSource"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "activity_id",
+          "rpe",
+          "affect",
+          "source",
+          "reported_at",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "SessionFeedbackOut",
+        "type": "object"
+      },
+      "Side": {
+        "enum": [
+          "left",
+          "right",
+          "center",
+          "bilateral"
+        ],
+        "title": "Side",
+        "type": "string"
+      },
+      "SignalOut": {
+        "description": "One rule's verdict, with the numbers behind it.",
+        "properties": {
+          "delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta"
+          },
+          "direction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Direction"
+          },
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "reference": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference"
+          },
+          "severity": {
+            "title": "Severity",
+            "type": "number"
+          },
+          "triggered": {
+            "title": "Triggered",
+            "type": "boolean"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "key",
+          "triggered",
+          "severity",
+          "value",
+          "reference",
+          "delta",
+          "direction",
+          "explanation",
+          "evidence"
+        ],
+        "title": "SignalOut",
+        "type": "object"
+      },
+      "SyncResultOut": {
+        "description": "How many checkins / feedbacks were pushed, plus any per-row errors.",
+        "properties": {
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Errors",
+            "type": "array"
+          },
+          "feedback_synced": {
+            "title": "Feedback Synced",
+            "type": "integer"
+          },
+          "wellness_synced": {
+            "title": "Wellness Synced",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "wellness_synced",
+          "feedback_synced",
+          "errors"
+        ],
+        "title": "SyncResultOut",
+        "type": "object"
+      },
+      "TimeseriesOut": {
+        "description": "Fused engine + subjective + divergence series.",
+        "properties": {
+          "date_from": {
+            "format": "date",
+            "title": "Date From",
+            "type": "string"
+          },
+          "date_to": {
+            "format": "date",
+            "title": "Date To",
+            "type": "string"
+          },
+          "divergence": {
+            "items": {
+              "$ref": "#/components/schemas/EnginePoint"
+            },
+            "title": "Divergence",
+            "type": "array"
+          },
+          "form_vs_normal": {
+            "items": {
+              "$ref": "#/components/schemas/EnginePoint"
+            },
+            "title": "Form Vs Normal",
+            "type": "array"
+          },
+          "series": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/EnginePoint"
+              },
+              "type": "array"
+            },
+            "title": "Series",
+            "type": "object"
+          }
+        },
+        "required": [
+          "date_from",
+          "date_to",
+          "series",
+          "form_vs_normal",
+          "divergence"
+        ],
+        "title": "TimeseriesOut",
+        "type": "object"
+      },
+      "Timing": {
+        "enum": [
+          "during",
+          "after",
+          "morning_stiffness",
+          "constant"
+        ],
+        "title": "Timing",
+        "type": "string"
+      },
+      "TokenOut": {
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "expires_in": {
+            "title": "Expires In",
+            "type": "integer"
+          },
+          "token_type": {
+            "default": "bearer",
+            "title": "Token Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "expires_in"
+        ],
+        "title": "TokenOut",
+        "type": "object"
+      },
+      "UserOut": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "persona_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Persona Id"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "is_active",
+          "created_at"
+        ],
+        "title": "UserOut",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "api/auth/login"
+          }
+        },
+        "type": "oauth2"
+      }
+    }
+  },
+  "info": {
+    "description": "API to track and analyse the readiness of endurance athletes.",
+    "title": "Enduraw Form Tracker",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "operationId": "login_api_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Login",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "me_api_auth_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Me",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "operationId": "register_api_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Register",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/checkin": {
+      "get": {
+        "description": "List the user's checkins, newest first, within an optional date window.",
+        "operationId": "list_checkins_api_checkin_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          },
+          {
+            "description": "Max rows to return.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "description": "Max rows to return.",
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Rows to skip.",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Rows to skip.",
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CheckinOut"
+                  },
+                  "title": "Response List Checkins Api Checkin Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Checkins",
+        "tags": [
+          "checkin"
+        ]
+      },
+      "post": {
+        "description": "Record the day's checkin, replacing any existing entry for that date.\n\nReturns ``201`` on first record of the day, ``200`` when an existing entry\nis updated. In live mode the checkin is pushed to CoachAgent in the\nbackground; in standalone nothing is queued.",
+        "operationId": "upsert_checkin_api_checkin_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckinCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckinOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Upsert Checkin",
+        "tags": [
+          "checkin"
+        ]
+      }
+    },
+    "/api/checkin/today": {
+      "get": {
+        "description": "Return today's checkin, or ``404`` if it has not been recorded yet.",
+        "operationId": "get_today_api_checkin_today_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckinOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get Today",
+        "tags": [
+          "checkin"
+        ]
+      }
+    },
+    "/api/feedback/session": {
+      "get": {
+        "description": "List the user's feedback, newest first.",
+        "operationId": "list_feedback_api_feedback_session_get",
+        "parameters": [
+          {
+            "description": "Exact activity filter.",
+            "in": "query",
+            "name": "activity_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Exact activity filter.",
+              "title": "Activity Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          },
+          {
+            "description": "Max rows to return.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "description": "Max rows to return.",
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Rows to skip.",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Rows to skip.",
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SessionFeedbackOut"
+                  },
+                  "title": "Response List Feedback Api Feedback Session Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Feedback",
+        "tags": [
+          "feedback"
+        ]
+      },
+      "post": {
+        "description": "Record feedback for an activity, replacing any prior entry for it.\n\nReturns ``201`` on first record, ``200`` when an existing entry is updated.\n``source`` is always set to ``app_manual`` server-side. In live mode the\nfeedback is pushed to CoachAgent in the background; in standalone nothing is\nqueued.",
+        "operationId": "upsert_feedback_api_feedback_session_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionFeedbackCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionFeedbackOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Upsert Feedback",
+        "tags": [
+          "feedback"
+        ]
+      }
+    },
+    "/api/garmin/daily": {
+      "get": {
+        "description": "List the user's daily metrics, newest first, within an optional window.",
+        "operationId": "list_daily_api_garmin_daily_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          },
+          {
+            "description": "Max rows to return.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "description": "Max rows to return.",
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Rows to skip.",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Rows to skip.",
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DailyMetricOut"
+                  },
+                  "title": "Response List Daily Api Garmin Daily Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Daily",
+        "tags": [
+          "garmin"
+        ]
+      }
+    },
+    "/api/garmin/ingest": {
+      "post": {
+        "description": "Ingest a batch of faked Garmin data (daily metrics + on-watch RPE).\n\nDaily metrics also refresh the illness watch-hint for each affected day.",
+        "operationId": "ingest_api_garmin_ingest_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GarminIngestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GarminIngestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Ingest",
+        "tags": [
+          "garmin"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "description": "Liveness probe.",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Health Api Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/illness": {
+      "get": {
+        "description": "List the user's illness flags, newest first, within an optional date window.",
+        "operationId": "list_illness_api_illness_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          },
+          {
+            "description": "Max rows to return.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "description": "Max rows to return.",
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Rows to skip.",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Rows to skip.",
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IllnessOut"
+                  },
+                  "title": "Response List Illness Api Illness Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Illness",
+        "tags": [
+          "illness"
+        ]
+      },
+      "post": {
+        "description": "Record an illness flag for a day, replacing any existing one.\n\nReturns ``201`` on first record, ``200`` when an existing entry is updated.",
+        "operationId": "upsert_illness_api_illness_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IllnessCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IllnessOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Upsert Illness",
+        "tags": [
+          "illness"
+        ]
+      }
+    },
+    "/api/illness/hint": {
+      "get": {
+        "description": "Compute the watch-hint for a day against the athlete's rolling baseline.",
+        "operationId": "get_hint_api_illness_hint_get",
+        "parameters": [
+          {
+            "description": "Day to evaluate (YYYY-MM-DD).",
+            "in": "query",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "description": "Day to evaluate (YYYY-MM-DD).",
+              "format": "date",
+              "title": "Date",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IllnessHintOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get Hint",
+        "tags": [
+          "illness"
+        ]
+      }
+    },
+    "/api/insights/correlations": {
+      "get": {
+        "description": "Niggle×load summary: each niggle opened in the window and its onset ACWR.",
+        "operationId": "correlations_api_insights_correlations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "From",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "To",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorrelationsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Correlations",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/insights/timeseries": {
+      "get": {
+        "description": "Fused engine + subjective form + divergence Δ over ``[from, to]``.",
+        "operationId": "timeseries_api_insights_timeseries_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "From",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "To",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Engine metrics to include.",
+            "in": "query",
+            "name": "metrics",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Engine metrics to include.",
+              "title": "Metrics"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeseriesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Timeseries",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/insights/today": {
+      "get": {
+        "description": "The athlete's readiness read for today: signals, composite, recommendation.",
+        "operationId": "today_api_insights_today_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyReadOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Today",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/mini-tests": {
+      "get": {
+        "description": "List the user's mini-tests, newest first.",
+        "operationId": "list_mini_tests_api_mini_tests_get",
+        "parameters": [
+          {
+            "description": "Filter by test type.",
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/MiniTestType"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by test type.",
+              "title": "Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          },
+          {
+            "description": "Max rows to return.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "description": "Max rows to return.",
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Rows to skip.",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Rows to skip.",
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MiniTestOut"
+                  },
+                  "title": "Response List Mini Tests Api Mini Tests Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Mini Tests",
+        "tags": [
+          "mini-tests"
+        ]
+      },
+      "post": {
+        "description": "Record a mini-test; the body's ``data.type`` selects the payload schema.",
+        "operationId": "create_mini_test_api_mini_tests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MiniTestCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MiniTestOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Create Mini Test",
+        "tags": [
+          "mini-tests"
+        ]
+      }
+    },
+    "/api/mini-tests/baseline": {
+      "get": {
+        "description": "Rolling baseline (mean/std + latest z) for a mini-test type's headline metric.",
+        "operationId": "mini_test_baseline_api_mini_tests_baseline_get",
+        "parameters": [
+          {
+            "description": "Which mini-test to baseline.",
+            "in": "query",
+            "name": "type",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/MiniTestType",
+              "description": "Which mini-test to baseline."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MiniTestBaselineOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Mini Test Baseline",
+        "tags": [
+          "mini-tests"
+        ]
+      }
+    },
+    "/api/niggles": {
+      "get": {
+        "description": "List niggles (without reports), newest first.",
+        "operationId": "list_niggles_api_niggles_get",
+        "parameters": [
+          {
+            "description": "Keep only open niggles.",
+            "in": "query",
+            "name": "active",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Keep only open niggles.",
+              "title": "Active",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Max rows to return.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "description": "Max rows to return.",
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Rows to skip.",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Rows to skip.",
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NiggleOut"
+                  },
+                  "title": "Response List Niggles Api Niggles Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Niggles",
+        "tags": [
+          "niggles"
+        ]
+      },
+      "post": {
+        "description": "Open a niggle, optionally with a first report embedded in the response.",
+        "operationId": "create_niggle_api_niggles_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NiggleCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NiggleWithReportsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Create Niggle",
+        "tags": [
+          "niggles"
+        ]
+      }
+    },
+    "/api/niggles/{niggle_id}": {
+      "get": {
+        "description": "Return a niggle with its reports (date ascending), or ``404`` if not yours.",
+        "operationId": "get_niggle_api_niggles__niggle_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "niggle_id",
+            "required": true,
+            "schema": {
+              "title": "Niggle Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NiggleWithReportsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get Niggle",
+        "tags": [
+          "niggles"
+        ]
+      },
+      "patch": {
+        "description": "Update ``closed_at`` / ``structure`` / ``notes``. ``region``/``side`` are immutable.",
+        "operationId": "patch_niggle_api_niggles__niggle_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "niggle_id",
+            "required": true,
+            "schema": {
+              "title": "Niggle Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NigglePatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NiggleWithReportsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Patch Niggle",
+        "tags": [
+          "niggles"
+        ]
+      }
+    },
+    "/api/niggles/{niggle_id}/reports": {
+      "post": {
+        "description": "Append a report to an open niggle (``404`` if not yours, ``409`` if closed).",
+        "operationId": "add_report_api_niggles__niggle_id__reports_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "niggle_id",
+            "required": true,
+            "schema": {
+              "title": "Niggle Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Add Report",
+        "tags": [
+          "niggles"
+        ]
+      }
+    },
+    "/api/sync/coachagent": {
+      "post": {
+        "description": "Push every unsynced checkin + feedback to the engine, returning the counts.\n\nReal in ``live`` mode; a no-op (all counts ``0``) in standalone.",
+        "operationId": "sync_coachagent_api_sync_coachagent_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncResultOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Sync Coachagent",
+        "tags": [
+          "sync"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "Service liveness.",
+      "name": "health"
+    },
+    {
+      "description": "Registration, login and current user.",
+      "name": "auth"
+    },
+    {
+      "description": "Daily readiness checkins (form, motivation, fatigue).",
+      "name": "checkin"
+    },
+    {
+      "description": "Nagging body complaints and their trajectory reports.",
+      "name": "niggles"
+    },
+    {
+      "description": "Neuromuscular micro-tests (jump / reaction).",
+      "name": "mini-tests"
+    },
+    {
+      "description": "Post-session feedback (RPE and affect).",
+      "name": "feedback"
+    },
+    {
+      "description": "Athlete-confirmed illness flags and symptoms.",
+      "name": "illness"
+    },
+    {
+      "description": "Faked Garmin ingestion (daily metrics + on-watch RPE).",
+      "name": "garmin"
+    },
+    {
+      "description": "Fused readiness: divergence, signals and recommendation.",
+      "name": "insights"
+    },
+    {
+      "description": "Push the app's subjective data back to CoachAgent.",
+      "name": "sync"
+    }
+  ]
+}
