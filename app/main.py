@@ -18,8 +18,10 @@ from app.routes.feedback import router as feedback_router
 from app.routes.garmin import router as garmin_router
 from app.routes.health import router as health_router
 from app.routes.illness import router as illness_router
+from app.routes.insights import router as insights_router
 from app.routes.mini_tests import router as mini_tests_router
 from app.routes.niggles import router as niggles_router
+from app.routes.sync import router as sync_router
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +34,8 @@ OPENAPI_TAGS = [
     {"name": "feedback", "description": "Post-session feedback (RPE and affect)."},
     {"name": "illness", "description": "Athlete-confirmed illness flags and symptoms."},
     {"name": "garmin", "description": "Faked Garmin ingestion (daily metrics + on-watch RPE)."},
+    {"name": "insights", "description": "Fused readiness: divergence, signals and recommendation."},
+    {"name": "sync", "description": "Push the app's subjective data back to CoachAgent."},
 ]
 
 
@@ -75,6 +79,8 @@ def create_app() -> FastAPI:
     app.include_router(feedback_router)
     app.include_router(illness_router)
     app.include_router(garmin_router)
+    app.include_router(insights_router)
+    app.include_router(sync_router)
     return app
 
 

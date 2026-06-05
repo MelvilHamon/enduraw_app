@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import date
+import json
+from datetime import UTC, date, datetime
 
 import httpx
 import pytest
@@ -15,6 +16,7 @@ from app.engines.errors import (
     EngineNotFound,
     EngineUpstreamError,
 )
+from app.engines.schemas import SessionFeedbackPayload, WellnessDailyPayload
 
 _BASE = "https://coach.test"
 _DAY = date(2026, 6, 4)
@@ -151,3 +153,87 @@ async def test_success_after_retry() -> None:
 
     assert state.fitness == pytest.approx(64.2)
     assert route.call_count == 2
+
+
+# --- writes -----------------------------------------------------------------
+
+_WELLNESS = WellnessDailyPayload(
+    date=_DAY, form_vs_normal=1, motivation=4, fatigue=2, active_niggles=3
+)
+_FEEDBACK = SessionFeedbackPayload(
+    activity_id="a1",
+    rpe=7,
+    affect="strong",
+    reported_at=datetime(2026, 6, 4, 18, 30, tzinfo=UTC),
+)
+
+
+@respx.mock
+async def test_push_wellness_posts_contract_with_bearer() -> None:
+    route = respx.post(f"{_BASE}/api/v1/wellness/daily").mock(return_value=httpx.Response(200))
+    engine = _engine()
+    outcome = await engine.push_wellness_daily(_WELLNESS)
+    await engine.aclose()
+
+    assert outcome == "sent"
+    request = route.calls.last.request
+    assert request.headers["authorization"] == "Bearer secret-key"
+    assert json.loads(request.content) == {
+        "date": "2026-06-04",
+        "form_vs_normal": 1,
+        "motivation": 4,
+        "fatigue": 2,
+        "active_niggles": 3,
+    }
+
+
+@respx.mock
+async def test_push_feedback_posts_contract() -> None:
+    route = respx.post(f"{_BASE}/api/v1/feedback/session").mock(return_value=httpx.Response(201))
+    engine = _engine()
+    outcome = await engine.push_session_feedback(_FEEDBACK)
+    await engine.aclose()
+
+    assert outcome == "sent"
+    assert json.loads(route.calls.last.request.content) == {
+        "activity_id": "a1",
+        "rpe": 7,
+        "affect": "strong",
+        "reported_at": "2026-06-04T18:30:00Z",
+    }
+
+
+@respx.mock
+async def test_push_5xx_retried_then_upstream_error() -> None:
+    route = respx.post(f"{_BASE}/api/v1/wellness/daily").mock(
+        return_value=httpx.Response(503, json={"message": "down"})
+    )
+    engine = _engine()  # max_retries=2 → 3 attempts
+    with pytest.raises(EngineUpstreamError):
+        await engine.push_wellness_daily(_WELLNESS)
+    await engine.aclose()
+    assert route.call_count == 3
+
+
+@respx.mock
+async def test_push_timeout_retried_then_upstream_error() -> None:
+    route = respx.post(f"{_BASE}/api/v1/wellness/daily").mock(
+        side_effect=httpx.ConnectTimeout("timed out")
+    )
+    engine = _engine()
+    with pytest.raises(EngineUpstreamError):
+        await engine.push_wellness_daily(_WELLNESS)
+    await engine.aclose()
+    assert route.call_count == 3
+
+
+@respx.mock
+async def test_push_401_maps_to_auth_error_and_fails_fast() -> None:
+    route = respx.post(f"{_BASE}/api/v1/wellness/daily").mock(
+        return_value=httpx.Response(401, json={"message": "nope"})
+    )
+    engine = _engine()
+    with pytest.raises(EngineAuthError):
+        await engine.push_wellness_daily(_WELLNESS)
+    await engine.aclose()
+    assert route.call_count == 1  # 4xx is not retried

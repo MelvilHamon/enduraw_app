@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.engines.errors import EngineBadRequest, EngineNotFound
 from app.engines.mock import MockEngine
+from app.engines.schemas import SessionFeedbackPayload, WellnessDailyPayload
 from app.synth import generate
 from app.synth.seeder import seed_user
 
@@ -166,3 +167,17 @@ async def test_out_of_range_date_raises(db_session: Session, tmp_path: Path) -> 
     engine = MockEngine(user_id, str(tmp_path))
     with pytest.raises(EngineNotFound):
         await engine.get_state(_END + timedelta(days=365))
+
+
+async def test_writes_are_noops_that_skip(tmp_path: Path) -> None:
+    # No snapshot needed: writes never touch disk, they just report "skipped".
+    engine = MockEngine("nobody", str(tmp_path))
+    wellness = WellnessDailyPayload(
+        date=_END, form_vs_normal=0, motivation=3, fatigue=3, active_niggles=0
+    )
+    feedback = SessionFeedbackPayload(
+        activity_id="a1", rpe=5, affect="neutral", reported_at=datetime(2026, 6, 4, tzinfo=UTC)
+    )
+
+    assert await engine.push_wellness_daily(wellness) == "skipped"
+    assert await engine.push_session_feedback(feedback) == "skipped"

@@ -10,11 +10,17 @@ so downstream code never branches on the backend.
 from __future__ import annotations
 
 from datetime import date as date_
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 ReadinessHint = Literal["low", "neutral", "high"]
+
+# Outcome of a write to the engine: ``sent`` when the backend actually received
+# the payload (live), ``skipped`` when there is nowhere to send it (standalone /
+# mock). The sync layer flips the row's synced flag only on ``sent``.
+PushOutcome = Literal["sent", "skipped"]
 
 # Metrics that :class:`EngineTimeseries` can carry. ``load`` is the per-day
 # training impulse; the rest are the Banister/ACWR latent series.
@@ -114,3 +120,26 @@ class EngineActivity(BaseModel):
     trimp: float
     hr_tss: float
     elevation_gain_m: float
+
+
+class WellnessDailyPayload(BaseModel):
+    """The daily subjective wellness pushed back to the engine.
+
+    ``active_niggles`` is the count of niggles open on ``date`` — niggles are not
+    pushed individually, their effect surfaces only through this counter.
+    """
+
+    date: date_
+    form_vs_normal: int
+    motivation: int
+    fatigue: int
+    active_niggles: int
+
+
+class SessionFeedbackPayload(BaseModel):
+    """Post-session RPE + affect pushed back to the engine for one activity."""
+
+    activity_id: str
+    rpe: int
+    affect: str
+    reported_at: datetime

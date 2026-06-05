@@ -18,6 +18,9 @@ from app.engines.schemas import (
     EnginePoint,
     EngineState,
     EngineTimeseries,
+    PushOutcome,
+    SessionFeedbackPayload,
+    WellnessDailyPayload,
     compute_readiness_hint,
 )
 from app.engines.snapshot import EngineSnapshot, load_snapshot
@@ -103,3 +106,10 @@ class MockEngine:
         ]
         in_window.sort(key=lambda a: a["date"], reverse=True)
         return [EngineActivity.model_validate(a) for a in in_window[:limit]]
+
+    async def push_wellness_daily(self, payload: WellnessDailyPayload) -> PushOutcome:
+        # Standalone has no CoachAgent to receive writes: a true no-op.
+        return "skipped"
+
+    async def push_session_feedback(self, payload: SessionFeedbackPayload) -> PushOutcome:
+        return "skipped"

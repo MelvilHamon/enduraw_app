@@ -29,6 +29,9 @@ def upsert_checkin(db: Session, user_id: str, payload: CheckinCreate) -> tuple[D
         existing.motivation = payload.motivation
         existing.fatigue = payload.fatigue
         existing.reported_at = datetime.now(UTC)
+        # The row changed: re-arm it for sync so the edit reaches CoachAgent.
+        existing.synced_to_coachagent = False
+        existing.synced_at = None
         db.commit()
         db.refresh(existing)
         return existing, False

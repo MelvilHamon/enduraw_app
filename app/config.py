@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     # Where the standalone (mock) engine reads per-user snapshots from.
     MOCK_ENGINE_DIR: str = "./data/mock_engine"
 
+    # Auto-push checkins/feedback to CoachAgent on write (only effective when
+    # ENGINE_MODE=live; in mock mode the push is a no-op).
+    SYNC_ON_WRITE: bool = True
+
     SEED_ON_START: bool = False
 
     CORS_ORIGINS: list[str] = ["http://localhost:3000"]

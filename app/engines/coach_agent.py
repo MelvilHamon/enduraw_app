@@ -20,15 +20,24 @@ from app.engines.errors import (
     EngineNotFound,
     EngineUpstreamError,
 )
-from app.engines.schemas import EngineActivity, EngineState, EngineTimeseries
+from app.engines.schemas import (
+    EngineActivity,
+    EngineState,
+    EngineTimeseries,
+    PushOutcome,
+    SessionFeedbackPayload,
+    WellnessDailyPayload,
+)
 
 _STATE_PATH = "/api/v1/engine/state"
 _TIMESERIES_PATH = "/api/v1/engine/timeseries"
 _ACTIVITIES_PATH = "/api/v1/activities"
+_WELLNESS_DAILY_PATH = "/api/v1/wellness/daily"
+_FEEDBACK_SESSION_PATH = "/api/v1/feedback/session"
 
 
 class CoachAgentEngine:
-    """Read-only client for the CoachAgent training engine."""
+    """HTTP client for the CoachAgent training engine (reads + write-back)."""
 
     def __init__(
         self,
@@ -79,18 +88,38 @@ class CoachAgentEngine:
         )
         return [EngineActivity.model_validate(item) for item in payload]
 
+    async def push_wellness_daily(self, payload: WellnessDailyPayload) -> PushOutcome:
+        await self._request("POST", _WELLNESS_DAILY_PATH, json=payload.model_dump(mode="json"))
+        return "sent"
+
+    async def push_session_feedback(self, payload: SessionFeedbackPayload) -> PushOutcome:
+        await self._request("POST", _FEEDBACK_SESSION_PATH, json=payload.model_dump(mode="json"))
+        return "sent"
+
     async def _get(self, path: str, params: dict[str, Any]) -> Any:
-        """GET ``path`` with retries on transient failures; map errors to exceptions.
+        return (await self._request("GET", path, params=params)).json()
+
+    async def _request(
+        self,
+        method: str,
+        path: str,
+        *,
+        params: dict[str, Any] | None = None,
+        json: Any | None = None,
+    ) -> httpx.Response:
+        """Send ``method path`` with retries on transient failures; map errors to exceptions.
 
         Makes up to ``max_retries`` retries *after* the initial attempt. 5xx and
-        timeout / transport errors are retried; 4xx fail fast.
+        timeout / transport errors are retried; 4xx fail fast. POSTs are safe to
+        retry because the write contract upserts. Returns the raw response —
+        callers that need a body (the reads) parse it; the writes ignore it.
         """
 
         delay = self._backoff_base
         last_exc: Exception | None = None
         for attempt in range(self._max_retries + 1):
             try:
-                response = await self._client.get(path, params=params)
+                response = await self._client.request(method, path, params=params, json=json)
             except (httpx.TimeoutException, httpx.TransportError) as exc:
                 last_exc = exc
                 if attempt < self._max_retries:
@@ -109,7 +138,7 @@ class CoachAgentEngine:
             if response.status_code >= 400:
                 self._raise_client_error(response)
 
-            return response.json()
+            return response
 
         # Unreachable: the loop either returns or raises on its final iteration.
         raise EngineUpstreamError(f"CoachAgent request to {path} failed: {last_exc}")

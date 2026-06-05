@@ -5,21 +5,23 @@ from __future__ import annotations
 from datetime import date as date_
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app.auth.deps import get_current_user
+from app.config import Settings, get_settings
 from app.db import get_db
 from app.models.session_feedback import SessionFeedback
 from app.models.user import User
 from app.routes._pagination import PaginationDep
 from app.schemas.feedback import SessionFeedbackCreate, SessionFeedbackOut
-from app.services import feedback_service
+from app.services import feedback_service, sync_service
 
 router = APIRouter(prefix="/api/feedback", tags=["feedback"])
 
 DbSession = Annotated[Session, Depends(get_db)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
+SettingsDep = Annotated[Settings, Depends(get_settings)]
 
 
 @router.post("/session", response_model=SessionFeedbackOut, status_code=status.HTTP_201_CREATED)
@@ -28,14 +30,22 @@ def upsert_feedback(
     current_user: CurrentUser,
     db: DbSession,
     response: Response,
+    background_tasks: BackgroundTasks,
+    settings: SettingsDep,
 ) -> SessionFeedback:
     """Record feedback for an activity, replacing any prior entry for it.
 
     Returns ``201`` on first record, ``200`` when an existing entry is updated.
-    ``source`` is always set to ``app_manual`` server-side.
+    ``source`` is always set to ``app_manual`` server-side. In live mode the
+    feedback is pushed to CoachAgent in the background; in standalone nothing is
+    queued.
     """
 
     feedback, created = feedback_service.upsert_feedback(db, current_user.id, payload)
+    if settings.ENGINE_MODE == "live" and settings.SYNC_ON_WRITE:
+        background_tasks.add_task(
+            sync_service.run_feedback_sync, feedback.id, current_user.id, settings
+        )
     response.status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
     return feedback
 
