@@ -25,7 +25,7 @@ from app.models.niggle import Niggle, NiggleReport
 from app.models.session_feedback import SessionFeedback
 from app.models.user import User
 from app.synth import PRESETS, generate_cohort
-from app.synth.seeder import seed_cohort
+from app.synth.seeder import DEMO_PASSWORD, email_for, seed_cohort
 
 _COUNTED = (
     ("users", User),
@@ -67,6 +67,10 @@ def main() -> None:
             total = db.scalar(select(func.count()).select_from(model)) or 0
             print(f"  {name:<18} {total}")
         print(f"  engine snapshots → {settings.MOCK_ENGINE_DIR}")
+
+        print(f"\nLogin (password: {DEMO_PASSWORD}):")
+        for dataset in datasets:
+            print(f"  {email_for(dataset)}")
 
 
 if __name__ == "__main__":

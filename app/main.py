@@ -5,9 +5,12 @@ from __future__ import annotations
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app import __version__
 from app.auth.routes import router as auth_router
@@ -24,6 +27,11 @@ from app.routes.niggles import router as niggles_router
 from app.routes.sync import router as sync_router
 
 logger = logging.getLogger(__name__)
+
+# Built single-page app (frontend/dist), produced by `npm run build`. Served by
+# FastAPI in production so the demo runs on a single URL; absent in dev (the Vite
+# dev server proxies /api instead).
+FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 
 OPENAPI_TAGS = [
     {"name": "health", "description": "Service liveness."},
@@ -81,7 +89,38 @@ def create_app() -> FastAPI:
     app.include_router(garmin_router)
     app.include_router(insights_router)
     app.include_router(sync_router)
+
+    _mount_frontend(app)
     return app
+
+
+def _mount_frontend(app: FastAPI) -> None:
+    """Serve the built SPA when present, with a fallback to ``index.html``.
+
+    Declared after the API routers so ``/api/*``, ``/docs`` and ``/openapi.json``
+    keep priority. The catch-all returns hashed build files by name (manifest,
+    service worker, icons) and otherwise the SPA shell for client-side routes.
+    """
+
+    if not FRONTEND_DIST.is_dir():
+        logger.info("No frontend build at %s — API only (dev uses the Vite proxy)", FRONTEND_DIST)
+        return
+
+    assets = FRONTEND_DIST / "assets"
+    if assets.is_dir():
+        app.mount("/assets", StaticFiles(directory=assets), name="assets")
+
+    index = FRONTEND_DIST / "index.html"
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def spa(full_path: str) -> FileResponse:
+        # Unknown API/doc paths must stay 404 (JSON), not fall back to the shell.
+        if full_path.startswith(("api/", "docs", "redoc", "openapi.json")):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        candidate = (FRONTEND_DIST / full_path).resolve()
+        if full_path and candidate.is_file() and candidate.is_relative_to(FRONTEND_DIST):
+            return FileResponse(candidate)
+        return FileResponse(index)
 
 
 app = create_app()

@@ -32,8 +32,10 @@ from app.security import hash_password
 from app.services import checkin_service, feedback_service, garmin_service, illness_service
 from app.synth.dataset import SyntheticDailyMetric, SyntheticDataset
 
-# Hashed once at import — synthetic users never log in, this is a placeholder.
-_PLACEHOLDER_PASSWORD_HASH = hash_password("synthetic-seed-user")
+# Shared password for every seeded athlete so any persona is demo-loggable.
+# Hashed once at import. Not a secret — synthetic data only.
+DEMO_PASSWORD = "demo1234"
+_DEMO_PASSWORD_HASH = hash_password(DEMO_PASSWORD)
 
 # Deterministic clock-time stamped on date-only synthetic events.
 _DEFAULT_REPORT_TIME = time(18, 0)
@@ -76,12 +78,13 @@ def _upsert_user(db: Session, dataset: SyntheticDataset) -> User:
     if user is None:
         user = User(
             email=email,
-            hashed_password=_PLACEHOLDER_PASSWORD_HASH,
+            hashed_password=_DEMO_PASSWORD_HASH,
             persona_id=dataset.persona_name,
         )
         db.add(user)
     else:
         user.persona_id = dataset.persona_name
+        user.hashed_password = _DEMO_PASSWORD_HASH
     db.commit()
     db.refresh(user)
     return user
