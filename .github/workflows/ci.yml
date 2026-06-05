@@ -44,3 +44,21 @@ jobs:
           python-version: "3.12"
       - run: pip install -e ".[dev]"
       - run: pytest -v --cov=app --cov-report=term-missing
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      # Validates the app imports and the OpenAPI schema generates; fails if the
+      # committed snapshot is stale (re-run `python -m scripts.export_openapi`).
+      - run: python -m scripts.export_openapi
+      - run: git diff --exit-code -- docs/openapi.json
+      - name: Check markdown links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress --offline 'README.md' 'docs/**/*.md'
+          fail: true
