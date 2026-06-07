@@ -45,7 +45,8 @@
           "date": "2026-06-04",
           "fatigue": 2,
           "form_vs_normal": 1,
-          "motivation": 4
+          "motivation": 1,
+          "stress": -1
         },
         "properties": {
           "date": {
@@ -69,11 +70,25 @@
             "type": "integer"
           },
           "motivation": {
-            "description": "Motivation to train today, 1 to 5.",
-            "maximum": 5.0,
-            "minimum": 1.0,
+            "description": "Motivation vs a normal day, -2 (much lower) to +2 (much higher).",
+            "maximum": 2.0,
+            "minimum": -2.0,
             "title": "Motivation",
             "type": "integer"
+          },
+          "stress": {
+            "anyOf": [
+              {
+                "maximum": 2.0,
+                "minimum": -2.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional subjective stress vs a normal day, -2 (much less) to +2 (much more).",
+            "title": "Stress"
           }
         },
         "required": [
@@ -119,6 +134,17 @@
             "title": "Reported At",
             "type": "string"
           },
+          "stress": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stress"
+          },
           "updated_at": {
             "format": "date-time",
             "title": "Updated At",
@@ -131,6 +157,7 @@
           "form_vs_normal",
           "motivation",
           "fatigue",
+          "stress",
           "reported_at",
           "created_at",
           "updated_at"

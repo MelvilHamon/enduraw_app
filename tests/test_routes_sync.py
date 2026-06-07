@@ -37,7 +37,7 @@ def _add_checkin(db: Session, user: User, day: date_ = _DAY) -> DailyCheckin:
         user_id=user.id,
         date=day,
         form_vs_normal=1,
-        motivation=4,
+        motivation=1,
         fatigue=2,
         reported_at=datetime.now(UTC),
     )

@@ -7,10 +7,19 @@ export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col">
       <header className="flex items-center justify-between px-4 py-3">
-        <span className="text-sm font-semibold tracking-tight text-slate-200">Enduraw</span>
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          {user && <span className="max-w-[160px] truncate">{user.persona_id ?? user.email}</span>}
-          <button type="button" onClick={logout} className="text-slate-400 underline">
+        <span className="flex items-center gap-2 text-sm font-semibold tracking-tight text-stone-100">
+          <span className="inline-block h-2.5 w-2.5 rounded-full bg-flame-500 shadow-glow" />
+          Enduraw
+        </span>
+        <div className="flex items-center gap-3 text-xs text-stone-500">
+          {user && (
+            <span className="max-w-[160px] truncate">{user.persona_id ?? user.email}</span>
+          )}
+          <button
+            type="button"
+            onClick={logout}
+            className="text-stone-400 underline-offset-2 hover:text-flame-500 hover:underline"
+          >
             Quitter
           </button>
         </div>

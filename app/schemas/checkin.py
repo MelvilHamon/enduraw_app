@@ -16,8 +16,9 @@ class CheckinCreate(BaseModel):
             "example": {
                 "date": "2026-06-04",
                 "form_vs_normal": 1,
-                "motivation": 4,
+                "motivation": 1,
                 "fatigue": 2,
+                "stress": -1,
             }
         }
     )
@@ -28,8 +29,18 @@ class CheckinCreate(BaseModel):
         le=2,
         description="Subjective form vs a normal day, -2 (much worse) to +2 (much better).",
     )
-    motivation: int = Field(ge=1, le=5, description="Motivation to train today, 1 to 5.")
+    motivation: int = Field(
+        ge=-2,
+        le=2,
+        description="Motivation vs a normal day, -2 (much lower) to +2 (much higher).",
+    )
     fatigue: int = Field(ge=1, le=5, description="Perceived fatigue, 1 (fresh) to 5 (exhausted).")
+    stress: int | None = Field(
+        default=None,
+        ge=-2,
+        le=2,
+        description="Optional subjective stress vs a normal day, -2 (much less) to +2 (much more).",
+    )
 
 
 class CheckinOut(BaseModel):
@@ -42,6 +53,7 @@ class CheckinOut(BaseModel):
     form_vs_normal: int
     motivation: int
     fatigue: int
+    stress: int | None
     reported_at: datetime
     created_at: datetime
     updated_at: datetime

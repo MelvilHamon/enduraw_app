@@ -17,3 +17,9 @@ export function daysAgoISO(days: number): string {
   d.setDate(d.getDate() - days);
   return toISO(d);
 }
+
+// Compact "DD/MM" label for chart axes, from an ISO `YYYY-MM-DD` string.
+export function shortDate(iso: string): string {
+  const [, m, d] = iso.split("-");
+  return d && m ? `${d}/${m}` : iso;
+}

@@ -13,7 +13,7 @@ def _checkin(date: str = TODAY, **overrides: int) -> dict[str, object]:
     body: dict[str, object] = {
         "date": date,
         "form_vs_normal": 1,
-        "motivation": 4,
+        "motivation": 1,
         "fatigue": 2,
     }
     body.update(overrides)
@@ -39,7 +39,9 @@ def test_post_checkin_validation_out_of_range(
 ) -> None:
     resp = client.post("/api/checkin", json=_checkin(form_vs_normal=3), headers=auth_headers)
     assert resp.status_code == 422
-    resp = client.post("/api/checkin", json=_checkin(motivation=0), headers=auth_headers)
+    resp = client.post("/api/checkin", json=_checkin(motivation=3), headers=auth_headers)
+    assert resp.status_code == 422
+    resp = client.post("/api/checkin", json=_checkin(stress=3), headers=auth_headers)
     assert resp.status_code == 422
 
 
@@ -56,7 +58,7 @@ def test_get_today_404_when_absent(client: TestClient, auth_headers: dict[str, s
 
 
 def test_post_checkin_upsert_same_date(client: TestClient, auth_headers: dict[str, str]) -> None:
-    first = client.post("/api/checkin", json=_checkin(motivation=4), headers=auth_headers)
+    first = client.post("/api/checkin", json=_checkin(motivation=1), headers=auth_headers)
     assert first.status_code == 201
     second = client.post("/api/checkin", json=_checkin(motivation=2), headers=auth_headers)
     assert second.status_code == 200  # update, not create

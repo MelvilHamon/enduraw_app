@@ -4,6 +4,14 @@
 
 :root {
   color-scheme: dark;
+  /* Design tokens mirrored from tailwind.config.js for raw CSS / SVG use. */
+  --ink-950: #0b0b0c;
+  --ink-800: #161618;
+  --ink-700: #1f1f23;
+  --ink-600: #2a2a30;
+  --flame-500: #f97316;
+  --stone-50: #fafaf9;
+  --stone-400: #a8a29e;
 }
 
 html,
@@ -14,8 +22,13 @@ body,
 
 body {
   margin: 0;
-  background-color: #020617;
-  color: #e2e8f0;
+  background-color: var(--ink-950);
+  color: var(--stone-50);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Selection picks up the brand accent. */
+::selection {
+  background: rgba(249, 115, 22, 0.3);
 }

@@ -50,14 +50,16 @@ def test_create_daily_checkin_ok(db_session: Session) -> None:
         user_id=user.id,
         date=_DAY,
         form_vs_normal=1,
-        motivation=4,
+        motivation=1,
         fatigue=2,
+        stress=-1,
         reported_at=_NOW,
     )
     db_session.add(checkin)
     db_session.commit()
 
     assert checkin.id is not None
+    assert checkin.stress == -1
     assert checkin.synced_to_coachagent is False
     assert checkin.created_at is not None and checkin.updated_at is not None
 
@@ -69,7 +71,7 @@ def test_daily_checkin_form_vs_normal_check(db_session: Session) -> None:
             user_id=user.id,
             date=_DAY,
             form_vs_normal=5,  # out of [-2, 2]
-            motivation=3,
+            motivation=1,
             fatigue=3,
             reported_at=_NOW,
         )
@@ -86,7 +88,7 @@ def test_daily_checkin_motivation_check(db_session: Session) -> None:
             user_id=user.id,
             date=_DAY,
             form_vs_normal=0,
-            motivation=0,  # out of [1, 5]
+            motivation=3,  # out of [-2, 2]
             fatigue=3,
             reported_at=_NOW,
         )
@@ -104,7 +106,7 @@ def test_daily_checkin_unique_user_date(db_session: Session) -> None:
                 user_id=user.id,
                 date=_DAY,
                 form_vs_normal=0,
-                motivation=3,
+                motivation=1,
                 fatigue=3,
                 reported_at=_NOW,
             )

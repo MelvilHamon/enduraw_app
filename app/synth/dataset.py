@@ -87,12 +87,13 @@ class SyntheticDailyMetric:
 
 @dataclass(frozen=True)
 class SyntheticCheckin:
-    """A subjective daily check-in (the three taps)."""
+    """A subjective daily check-in (the routine taps)."""
 
     date: date_
     form_vs_normal: int  # -2..2
-    motivation: int  # 1..5
+    motivation: int  # -2..2
     fatigue: int  # 1..5
+    stress: int  # -2..2
     reported_at: datetime
 
 

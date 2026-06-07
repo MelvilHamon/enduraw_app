@@ -28,6 +28,7 @@ def upsert_checkin(db: Session, user_id: str, payload: CheckinCreate) -> tuple[D
         existing.form_vs_normal = payload.form_vs_normal
         existing.motivation = payload.motivation
         existing.fatigue = payload.fatigue
+        existing.stress = payload.stress
         existing.reported_at = datetime.now(UTC)
         # The row changed: re-arm it for sync so the edit reaches CoachAgent.
         existing.synced_to_coachagent = False
@@ -42,6 +43,7 @@ def upsert_checkin(db: Session, user_id: str, payload: CheckinCreate) -> tuple[D
         form_vs_normal=payload.form_vs_normal,
         motivation=payload.motivation,
         fatigue=payload.fatigue,
+        stress=payload.stress,
         reported_at=datetime.now(UTC),
     )
     db.add(checkin)

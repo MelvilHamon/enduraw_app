@@ -20,12 +20,14 @@ export interface UserOut {
 export interface CheckinCreate {
   date: string; // YYYY-MM-DD
   form_vs_normal: number; // -2..2
-  motivation: number; // 1..5
+  motivation: number; // -2..2
   fatigue: number; // 1..5
+  stress?: number | null; // -2..2, optional
 }
 
 export interface CheckinOut extends CheckinCreate {
   id: string;
+  stress: number | null;
   reported_at: string;
   created_at: string;
   updated_at: string;
@@ -85,6 +87,29 @@ export interface Timeseries {
   series: Record<string, EnginePoint[]>;
   form_vs_normal: EnginePoint[];
   divergence: EnginePoint[];
+}
+
+// --- Garmin / daily wellness metrics ---------------------------------------
+export type HrvStatus = "low" | "normal" | "high";
+
+export interface DailyMetricOut {
+  id: string;
+  date: string;
+  sleep_score: number | null;
+  sleep_duration_min: number | null;
+  sleep_onset: string | null;
+  sleep_wake: string | null;
+  hrv_rmssd: number | null;
+  hrv_status: HrvStatus | null;
+  rhr: number | null;
+  stress: number | null;
+  body_battery: number | null;
+  resp_rate: number | null;
+  training_readiness: number | null;
+  vo2max: number | null;
+  source: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // --- Niggles ---------------------------------------------------------------

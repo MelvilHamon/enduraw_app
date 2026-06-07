@@ -138,8 +138,9 @@ def test_checkin_bounds() -> None:
         for s in _SEEDS:
             for c in _gen(name, s).checkins:
                 assert -2 <= c.form_vs_normal <= 2
-                assert 1 <= c.motivation <= 5
+                assert -2 <= c.motivation <= 2
                 assert 1 <= c.fatigue <= 5
+                assert -2 <= c.stress <= 2
 
 
 def test_niggle_intensity_bounds() -> None:

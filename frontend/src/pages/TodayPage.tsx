@@ -60,10 +60,10 @@ export function TodayPage() {
 
       {!hasCheckin && (
         <Link
-          to="/checkin"
+          to="/routine"
           className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-slate-200"
         >
-          Tu n'as pas encore fait ton check-in aujourd'hui →
+          Tu n'as pas encore fait ta routine aujourd'hui →
         </Link>
       )}
 

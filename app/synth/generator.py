@@ -353,6 +353,13 @@ def _run_banister(
 ) -> tuple[list[float], list[float], list[float], list[float | None]]:
     fitness_decay = math.exp(-1.0 / FITNESS_TAU)
     fatigue_decay = math.exp(-1.0 / FATIGUE_TAU)
+    # The impulse-sum recurrences below grow to ~load*τ; normalising the *output*
+    # by (1 - fitness_decay) brings fitness/fatigue/form back onto the daily-load
+    # scale (tens), so form behaves like a TrainingPeaks-style TSB and the engine
+    # readiness thresholds (form ±10/15) and the vo2max mapping are meaningful.
+    # It is a single scalar factor, so every z-score derived downstream is
+    # unchanged — only the reported magnitudes shrink.
+    scale = 1.0 - fitness_decay
 
     fitness: list[float] = []
     fatigue: list[float] = []
@@ -364,9 +371,9 @@ def _run_banister(
     for t, load in enumerate(daily_load):
         fit = prev_fit * fitness_decay + load
         fat = prev_fat * fatigue_decay + load
-        fitness.append(fit)
-        fatigue.append(fat)
-        form.append(fit - _FATIGUE_WEIGHT * fat)
+        fitness.append(fit * scale)
+        fatigue.append(fat * scale)
+        form.append((fit - _FATIGUE_WEIGHT * fat) * scale)
         acwr.append(_acwr(daily_load, t))
         prev_fit, prev_fat = fit, fat
 
@@ -675,10 +682,20 @@ def _emit_checkins(
         fatigue_tap = _clamp_int(
             3.0 + fat_z[t] * _K_TAP + float(rng.normal(0.0, traits.subj_noise)), 1, 5
         )
+        # Motivation is reported vs a normal day (signed -2..2), centred on 0.
         motivation = _clamp_int(
-            3.0 + form_z[t] * _M_W + traits.subj_bias + float(rng.normal(0.0, traits.subj_noise)),
-            1,
-            5,
+            form_z[t] * _M_W + traits.subj_bias + float(rng.normal(0.0, traits.subj_noise)),
+            -2,
+            2,
+        )
+        # Optional subjective stress vs normal (-2..2): rises with fatigue, eased
+        # by good sleep.
+        stress = _clamp_int(
+            fat_z[t] * _K_TAP * 0.7
+            - sleep_z[t] * 0.4
+            + float(rng.normal(0.0, traits.subj_noise)),
+            -2,
+            2,
         )
         reported_at = datetime.combine(day, time(7, 30), tzinfo=UTC) + timedelta(
             minutes=float(rng.normal(0.0, 25.0))
@@ -689,6 +706,7 @@ def _emit_checkins(
                 form_vs_normal=form_vs_normal,
                 motivation=motivation,
                 fatigue=fatigue_tap,
+                stress=stress,
                 reported_at=reported_at,
             )
         )

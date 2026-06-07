@@ -144,6 +144,7 @@ def _seed_checkins(db: Session, user: User, dataset: SyntheticDataset) -> None:
                 form_vs_normal=checkin.form_vs_normal,
                 motivation=checkin.motivation,
                 fatigue=checkin.fatigue,
+                stress=checkin.stress,
             ),
         )
 
