@@ -30,3 +30,6 @@ coverage.xml
 .idea/
 .vscode/
 .DS_Store
+
+# AI assistant local instructions (not part of the deliverable)
+CLAUDE.md
