@@ -5,7 +5,7 @@ import type { CheckinOut } from "../api/types";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { Spinner } from "../components/Spinner";
 import { SwipeCard, type SwipeStep } from "../components/SwipeCard";
-import { Card, PageHeader } from "../components/ui";
+import { Card, CardTitle, PageHeader } from "../components/ui";
 import { JumpGame, ReactionGame } from "../games/minigames";
 import { useAsync } from "../hooks/useAsync";
 import { todayISO } from "../lib/date";
@@ -18,28 +18,31 @@ const STEPS: (SwipeStep & { encode: (v: number) => number })[] = [
     key: "form",
     title: "Forme",
     prompt: "Comment tu te sens vs d'habitude ?",
-    labels: { up: "Bien mieux", right: "Un peu mieux", center: "Normal", left: "Un peu moins", down: "Bien moins" },
+    cue: "Évalue ta forme",
     encode: (v) => v,
   },
   {
+    // Fatigue is stored and shown on a 1..5 absolute scale (1 frais → 5 épuisé),
+    // so the swipe shows that scale directly instead of the −2..+2 of the others.
     key: "fatigue",
     title: "Fatigue",
     prompt: "Ton niveau de fatigue aujourd'hui",
-    labels: { up: "Épuisé", right: "Fatigué", center: "Normal", left: "Plutôt frais", down: "Très frais" },
+    cue: "Évalue ta fatigue",
+    display: (v) => String(v + 3), // gesture −2..+2 → 1..5
     encode: (v) => v + 3, // stored 1..5
   },
   {
     key: "motivation",
     title: "Motivation",
     prompt: "Ton envie de t'entraîner vs d'habitude",
-    labels: { up: "À fond", right: "Motivé", center: "Normal", left: "Peu motivé", down: "À plat" },
+    cue: "Évalue ta motivation",
     encode: (v) => v,
   },
   {
     key: "stress",
     title: "Stress",
     prompt: "Ton stress vs d'habitude",
-    labels: { up: "Bien plus", right: "Un peu plus", center: "Normal", left: "Un peu moins", down: "Bien moins" },
+    cue: "Évalue ton stress",
     encode: (v) => v,
   },
 ];
@@ -160,14 +163,26 @@ function Intro({ onStart }: { onStart: () => void }) {
     <div className="flex flex-col gap-5 py-2">
       <PageHeader title="Ta routine" subtitle="30 secondes, chaque matin." />
       <Card>
-        <h2 className="text-sm font-semibold text-stone-300">Comment ça marche</h2>
-        <ul className="mt-3 space-y-2 text-sm text-stone-300">
-          <li>🃏 Une carte par ressenti. Tu réponds d'un geste :</li>
-          <li className="text-stone-400">↑ haut = bien plus &nbsp;·&nbsp; → droite = un peu plus</li>
-          <li className="text-stone-400">↓ bas = bien moins &nbsp;·&nbsp; ← gauche = un peu moins</li>
-          <li className="text-stone-400">double-tap = comme d'habitude</li>
-          <li>🎮 Puis 2 mini-jeux : réflexe et détente.</li>
+        <CardTitle>Comment ça marche</CardTitle>
+        <p className="mt-3 text-sm text-stone-300">
+          Une carte par ressenti. Tu réponds d'un geste :
+        </p>
+        <ul className="mt-3 grid grid-cols-2 gap-2 text-sm">
+          {[
+            ["↑ haut", "bien plus"],
+            ["→ droite", "un peu plus"],
+            ["↓ bas", "bien moins"],
+            ["← gauche", "un peu moins"],
+          ].map(([g, m]) => (
+            <li key={g} className="flex items-center gap-2 rounded-lg border border-ink-700 bg-ink-900 px-3 py-2">
+              <span className="font-display text-stone-100">{g}</span>
+              <span className="text-stone-400">{m}</span>
+            </li>
+          ))}
         </ul>
+        <p className="mt-3 text-sm text-stone-400">
+          Double-tap = comme d'habitude. Puis 2 mini-jeux : réflexe et détente.
+        </p>
       </Card>
       <button
         type="button"
@@ -194,8 +209,8 @@ function Recap({ checkin, onRedo }: { checkin: CheckinOut; onRedo: () => void })
         <div className="grid grid-cols-4 gap-2 text-center">
           {items.map(([label, value]) => (
             <div key={label}>
-              <div className="text-lg font-bold text-flame-500">{value}</div>
-              <div className="text-[10px] uppercase tracking-wide text-stone-500">{label}</div>
+              <div className="font-display nums text-2xl text-flame-500">{value}</div>
+              <div className="mt-0.5 text-[10px] uppercase tracking-wide text-stone-400">{label}</div>
             </div>
           ))}
         </div>

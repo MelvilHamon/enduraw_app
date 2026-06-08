@@ -26,9 +26,9 @@ export function LoginPage() {
 
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col justify-center px-6">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         <span className="inline-block h-3 w-3 rounded-full bg-flame-500 shadow-glow" />
-        <h1 className="text-2xl font-bold text-stone-50">Enduraw</h1>
+        <h1 className="font-display text-3xl uppercase tracking-[0.06em] text-stone-50">Enduraw</h1>
       </div>
       <p className="mt-2 text-sm text-stone-400">
         Connecte-toi avec un athlète seedé (mot de passe&nbsp;: <code className="text-flame-400">demo1234</code>).

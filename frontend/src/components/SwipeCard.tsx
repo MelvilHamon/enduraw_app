@@ -1,23 +1,20 @@
-// Gesture card for the Routine: the athlete enters a -2..+2 value by swiping.
+// Gesture card for the Routine: the athlete enters a value by swiping.
 //   right → +1   left → -1   up → +2   down → -2   double-tap → 0
-// Pointer-based so it works with touch and mouse. Live drag feedback shows the
-// candidate value before release.
+// Live drag feedback shows the candidate value as a single large number in the
+// centre — mapped to each metric's own scale via `display`, so nothing overlaps.
+// Pointer-based so it works with touch and mouse.
 
 import { useRef, useState } from "react";
-
-export interface DirLabels {
-  up: string; // +2
-  right: string; // +1
-  center: string; // 0
-  left: string; // -1
-  down: string; // -2
-}
 
 export interface SwipeStep {
   key: string;
   title: string;
   prompt: string;
-  labels: DirLabels;
+  // Centre instruction shown before a swipe, e.g. "Évalue ta forme".
+  cue: string;
+  // Maps the -2..+2 gesture to the number shown to the athlete. Defaults to a
+  // signed -2..+2 string; fatigue overrides it to its 1..5 scale.
+  display?: (v: number) => string;
 }
 
 const SWIPE_THRESHOLD = 56; // px to commit a directional swipe
@@ -30,6 +27,15 @@ function candidate(dx: number, dy: number): number | null {
   if (Math.max(ax, ay) < SWIPE_THRESHOLD) return null;
   if (ax > ay) return dx > 0 ? 1 : -1;
   return dy < 0 ? 2 : -2;
+}
+
+// Default signed rendering (uses a real minus sign). Fatigue overrides via `display`.
+function signed(v: number): string {
+  return v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : "0";
+}
+
+function dispOf(step: SwipeStep, v: number): string {
+  return step.display ? step.display(v) : signed(v);
 }
 
 export function SwipeCard({
@@ -83,23 +89,33 @@ export function SwipeCard({
   }
 
   const rot = drag.x / 18;
+  const side = sideOf(cand);
+  const active = cand !== null && cand !== 0;
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-wide text-flame-500">
-          {index + 1} / {total}
-        </p>
-        <h2 className="mt-1 text-2xl font-bold text-stone-50">{step.title}</h2>
-        <p className="mt-0.5 text-sm text-stone-400">{step.prompt}</p>
+      <div className="flex flex-col items-center text-center">
+        {/* step progress dots */}
+        <div className="flex items-center gap-1.5">
+          {Array.from({ length: total }).map((_, i) => (
+            <span
+              key={i}
+              className={`h-1.5 rounded-full transition-all ${
+                i === index ? "w-5 bg-flame-500" : i < index ? "w-1.5 bg-flame-700" : "w-1.5 bg-ink-600"
+              }`}
+            />
+          ))}
+        </div>
+        <h2 className="mt-3 font-display text-3xl text-stone-50">{step.title}</h2>
+        <p className="mt-1 text-sm text-stone-400">{step.prompt}</p>
       </div>
 
       <div className="relative h-72 w-full max-w-xs select-none">
-        {/* directional hints */}
-        <Hint pos="top" active={cand === 2} label={step.labels.up} sign="+2" />
-        <Hint pos="bottom" active={cand === -2} label={step.labels.down} sign="−2" />
-        <Hint pos="left" active={cand === -1} label={step.labels.left} sign="−1" />
-        <Hint pos="right" active={cand === 1} label={step.labels.right} sign="+1" />
+        {/* faint edge values for orientation (the active one yields to the card) */}
+        <EdgeSign pos="top" sign={dispOf(step, 2)} hidden={cand === 2} />
+        <EdgeSign pos="bottom" sign={dispOf(step, -2)} hidden={cand === -2} />
+        <EdgeSign pos="left" sign={dispOf(step, -1)} hidden={cand === -1} />
+        <EdgeSign pos="right" sign={dispOf(step, 1)} hidden={cand === 1} />
 
         {/* the draggable card */}
         <div
@@ -131,45 +147,59 @@ export function SwipeCard({
             transition: pid.current === null ? "transform 160ms ease-out" : "none",
             touchAction: "none",
           }}
-          className="absolute inset-6 flex cursor-grab touch-none flex-col items-center justify-center rounded-3xl border border-ink-500 bg-ink-700 shadow-glow active:cursor-grabbing"
+          className="absolute inset-6 flex cursor-grab touch-none items-center justify-center overflow-hidden rounded-3xl border border-ink-500 bg-ink-700 shadow-glow active:cursor-grabbing"
         >
-          <span className="text-5xl font-black text-flame-500">{cand ?? "•"}</span>
-          <span className="mt-2 text-sm text-stone-400">
-            {cand === null ? "Glisse ou double-tape" : labelFor(step, cand)}
-          </span>
+          {/* translucent arc glowing on the side being swiped toward */}
+          <div
+            aria-hidden
+            className={`pointer-events-none absolute h-56 w-56 rounded-full bg-flame-500 blur-2xl transition-all duration-150 ${
+              active ? "opacity-25" : "opacity-0"
+            } ${arcPlace(side)}`}
+          />
+
+          {/* a single centred element: the instruction before a swipe, the big
+              value once swiping — never both, so they can't overlap */}
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-6 text-center">
+            {cand === null ? (
+              <span className="font-display text-2xl leading-tight text-stone-400">{step.cue}</span>
+            ) : (
+              <span className="font-display nums text-7xl text-flame-500">{dispOf(step, cand)}</span>
+            )}
+          </div>
         </div>
       </div>
 
       <p className="text-center text-xs text-stone-500">
-        Glisse : haut +2 · droite +1 · gauche −1 · bas −2 · double-tap = normal
+        Glisse : haut {dispOf(step, 2)} · droite {dispOf(step, 1)} · gauche {dispOf(step, -1)} · bas{" "}
+        {dispOf(step, -2)} · double-tap = normal
       </p>
     </div>
   );
 }
 
-function labelFor(step: SwipeStep, v: number): string {
-  return v === 2
-    ? step.labels.up
-    : v === 1
-      ? step.labels.right
-      : v === 0
-        ? step.labels.center
-        : v === -1
-          ? step.labels.left
-          : step.labels.down;
+type Side = "top" | "bottom" | "left" | "right" | null;
+
+function sideOf(cand: number | null): Side {
+  return cand === 2 ? "top" : cand === -2 ? "bottom" : cand === -1 ? "left" : cand === 1 ? "right" : null;
 }
 
-function Hint({
-  pos,
-  label,
-  sign,
-  active,
-}: {
-  pos: "top" | "bottom" | "left" | "right";
-  label: string;
-  sign: string;
-  active: boolean;
-}) {
+// Where the translucent arc sits (pushed off the swiped edge so only an arc shows).
+function arcPlace(side: Side): string {
+  switch (side) {
+    case "top":
+      return "-top-28 left-1/2 -translate-x-1/2";
+    case "bottom":
+      return "-bottom-28 left-1/2 -translate-x-1/2";
+    case "left":
+      return "-left-28 top-1/2 -translate-y-1/2";
+    case "right":
+      return "-right-28 top-1/2 -translate-y-1/2";
+    default:
+      return "left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0";
+  }
+}
+
+function EdgeSign({ pos, sign, hidden }: { pos: "top" | "bottom" | "left" | "right"; sign: string; hidden: boolean }) {
   const place = {
     top: "left-1/2 top-0 -translate-x-1/2",
     bottom: "left-1/2 bottom-0 -translate-x-1/2",
@@ -177,13 +207,12 @@ function Hint({
     right: "right-0 top-1/2 -translate-y-1/2",
   }[pos];
   return (
-    <div
-      className={`pointer-events-none absolute ${place} flex flex-col items-center text-center text-[11px] transition-colors ${
-        active ? "text-flame-500" : "text-stone-600"
+    <span
+      className={`pointer-events-none absolute ${place} text-[11px] font-bold text-stone-700 transition-opacity ${
+        hidden ? "opacity-0" : "opacity-100"
       }`}
     >
-      <span className="font-bold">{sign}</span>
-      <span className="max-w-[72px] leading-tight">{label}</span>
-    </div>
+      {sign}
+    </span>
   );
 }

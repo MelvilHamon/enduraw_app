@@ -1,16 +1,16 @@
 import { Link } from "react-router-dom";
 import { getToday } from "../api/endpoints";
 import type { DailyRead, Signal } from "../api/types";
+import { ArcGauge } from "../components/charts/Gauge";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { SettingsIcon } from "../components/icons";
-import { Spinner } from "../components/Spinner";
+import { CardSkeleton, HeroSkeleton } from "../components/Skeleton";
 import { Card, CardTitle, PageHeader } from "../components/ui";
 import { useAsync } from "../hooks/useAsync";
-import { RECO_BG, RECO_LABEL } from "../lib/labels";
 
-// Onglet 5 — Profil. The athlete's health state in clear terms: overall
-// recommendation, the gap between their inputs and their data, and any
-// out-of-norm signals. Gear (top-right) → settings to connect a watch.
+// Onglet 5 — Profil. A big central score with a plain-language explanation of
+// what it means — no train/rest recommendation. Below: the gap between inputs
+// and data, and any out-of-norm signals. Gear (top-right) → settings.
 export function ProfilePage() {
   const { data, error, loading, reload } = useAsync<DailyRead>(() => getToday(), []);
 
@@ -30,7 +30,13 @@ export function ProfilePage() {
         }
       />
 
-      {loading && <Spinner label="Lecture de ton état…" />}
+      {loading && (
+        <div className="flex flex-col gap-4">
+          <HeroSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      )}
       {error && <ErrorBanner message={error} onRetry={reload} />}
       {data && <Body read={data} />}
     </div>
@@ -41,24 +47,32 @@ function Body({ read }: { read: DailyRead }) {
   const divergence = read.signals.find((s) => s.key === "divergence_subj_obj");
   const outOfNorm = read.signals.filter((s) => s.triggered && s.key !== "divergence_subj_obj");
   const scorePct = Math.round(Math.min(1, Math.max(0, read.composite_score)) * 100);
+  const { color, word } = scoreBand(scorePct);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Overall state */}
-      <Card>
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-2">
-            <span
-              className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-sm font-semibold text-white ${RECO_BG[read.readiness.reco]}`}
-            >
-              {RECO_LABEL[read.readiness.reco]}
-            </span>
-            <p className="text-sm text-stone-300">{read.readiness.explanation}</p>
+      {/* Hero score — the whole point of the screen */}
+      <Card className="relative overflow-hidden">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-24 -top-24 h-52 w-52 rounded-full opacity-20 blur-3xl"
+          style={{ background: color }}
+        />
+        <div className="relative flex flex-col items-center py-2 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">
+            Indice du jour
+          </p>
+          <div className="mt-1">
+            <ArcGauge value={scorePct} color={color} />
           </div>
-          <div className="flex flex-col items-center">
-            <div className="text-3xl font-bold text-flame-500">{scorePct}</div>
-            <div className="text-[10px] uppercase tracking-wide text-stone-500">score / 100</div>
+          <div className="-mt-2 font-display text-xl" style={{ color }}>
+            {word}
           </div>
+          <p className="mt-3 max-w-xs text-sm text-stone-400">
+            Cet indice résume combien de tes signaux s'écartent de tes normes habituelles. À
+            <span className="text-stone-200"> 0</span>, tout est dans la norme ; plus il monte, plus
+            il y a de signaux à surveiller.
+          </p>
         </div>
       </Card>
 
@@ -101,9 +115,16 @@ function Body({ read }: { read: DailyRead }) {
   );
 }
 
+// Colour + word for the score, without implying a train/rest recommendation.
+function scoreBand(pct: number): { color: string; word: string } {
+  if (pct < 34) return { color: "#22C55E", word: "Tout est au vert" };
+  if (pct < 67) return { color: "#F59E0B", word: "Quelques signaux" };
+  return { color: "#EF4444", word: "Plusieurs signaux" };
+}
+
 function divergenceText(signal: Signal | undefined): string {
   if (!signal || !signal.triggered) {
-    return "Ton ressenti colle à ce que disent tes données. 👌";
+    return "Ton ressenti colle à ce que disent tes données.";
   }
   if (signal.direction === "subj_optimistic") {
     return "Tu te sens mieux que ce que disent tes données — attention à ne pas surcharger.";

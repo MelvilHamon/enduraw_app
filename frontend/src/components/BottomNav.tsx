@@ -28,7 +28,7 @@ export function BottomNav() {
           key={to}
           to={to}
           className={({ isActive }) =>
-            `relative flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors ${
+            `relative flex flex-col items-center gap-1 py-2.5 text-[10px] font-semibold uppercase tracking-[0.06em] transition-colors ${
               isActive ? "text-flame-500" : "text-stone-500 hover:text-stone-300"
             }`
           }
@@ -36,7 +36,7 @@ export function BottomNav() {
           {({ isActive }) => (
             <>
               {isActive && (
-                <span className="absolute top-0 h-0.5 w-8 rounded-full bg-flame-500" />
+                <span className="absolute top-0 h-0.5 w-8 rounded-full bg-flame-500 shadow-glow" />
               )}
               <Icon />
               <span>{label}</span>

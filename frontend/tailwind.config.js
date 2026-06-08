@@ -3,6 +3,12 @@ export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        // Body / UI — Inter (refined, neutral, tabular figures).
+        sans: ['"Inter Variable"', "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
+        // Display — Archivo, an athletic grotesque used for titles + big numbers.
+        display: ['"Archivo Variable"', "system-ui", "Segoe UI", "sans-serif"],
+      },
       colors: {
         // --- Design system: warm-black base + single orange accent ---------
         // "ink" = backgrounds & surfaces (warm near-black). 950 is the page,
@@ -40,6 +46,17 @@ export default {
       boxShadow: {
         // Soft accent glow for primary CTAs / active states.
         glow: "0 0 0 1px rgba(249,115,22,0.25), 0 8px 24px -12px rgba(249,115,22,0.45)",
+        // Quiet elevation for resting cards — depth without a "floating box" look.
+        card: "0 1px 0 0 rgba(255,255,255,0.02) inset, 0 8px 24px -16px rgba(0,0,0,0.7)",
+      },
+      keyframes: {
+        // Loading skeleton shimmer.
+        shimmer: {
+          "100%": { transform: "translateX(100%)" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 1.4s ease-in-out infinite",
       },
     },
   },
