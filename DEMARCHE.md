@@ -74,7 +74,39 @@ Le moteur est abstrait derrière un `EnginePort` à deux implémentations : un
 **mode live** (REST vers CoachAgent). L'app reste démontrable seule tout en étant
 prête à se brancher sur l'écosystème Enduraw.
 
-### 2.4 Données synthétiques déterministes
+### 2.4 Le mode *live* : l'intégration CoachAgent
+
+> **À propos — projet personnel.** **CoachAgent est mon projet personnel** : un
+> moteur qui **analyse les signaux de course à pied** (charge d'entraînement,
+> fitness/fatigue façon Banister, ACWR, activités). Cette app Enduraw en est le
+> **complément naturel** : elle capte ce que le moteur ne voit pas — le
+> *subjectif et le localisé* (ressenti, gênes, mini-tests) — et le lui renvoie.
+> Ensemble, ils ferment la boucle : **donnée objective + ressenti humain = une
+> lecture de readiness plus juste**.
+
+Concrètement, l'app dialogue avec CoachAgent via un client HTTP asynchrone
+(`httpx`) **caché derrière l'`EnginePort`** (`app/engines/coach_agent.py`) — le
+reste du code ignore quel moteur répond. Trois endpoints en lecture, deux en
+écriture (write-only) :
+
+| Sens | Endpoint | Donnée |
+| --- | --- | --- |
+| Lecture | `GET /api/v1/engine/state` | forme / fitness / fatigue / ACWR du jour |
+| Lecture | `GET /api/v1/engine/timeseries` | séries temporelles des métriques moteur |
+| Lecture | `GET /api/v1/activities` | séances d'entraînement |
+| Écriture | `POST /api/v1/wellness/daily` | check-in subjectif (+ compteur de gênes) |
+| Écriture | `POST /api/v1/feedback/session` | RPE + affect post-séance |
+
+**Robustesse.** Authentification par *bearer token* ; timeout configurable
+(10 s par défaut) ; les erreurs transitoires (5xx, timeouts, erreurs de
+transport) sont **réessayées avec backoff exponentiel**, les 4xx échouent vite,
+et tout est mappé en **exceptions typées** (auth / introuvable / requête
+invalide / upstream) pour que l'app reste agnostique du backend. Les POST sont
+idempotents (*upsert*), donc sûrs à rejouer. En **mode standalone**, exactement
+la même interface est servie par un `MockEngine` (snapshots JSON) : l'app se
+démontre seule, sans CoachAgent.
+
+### 2.5 Données synthétiques déterministes
 Pour démontrer le produit sans dépendre d'un vrai athlète, un générateur
 (`app/synth/`) produit des **cohortes déterministes par seed** : des personas
 (régulier, sur-entraîné, mauvais dormeur, sujet aux blessures, débutant) avec des
